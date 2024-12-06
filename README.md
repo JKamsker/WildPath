@@ -1,19 +1,20 @@
 # **PathResolver**
 
-PathResolver is a powerful and extensible library for resolving and evaluating file system paths based on dynamic expressions. It supports advanced path traversal and pattern matching, making it suitable for applications like file searches, build systems, and custom path resolvers.
+PathResolver is a powerful and extensible library for resolving and evaluating file system paths based on dynamic expressions. 
+It supports advanced path traversal and pattern matching, making it suitable for applications like file searches, build systems, and custom path resolvers.
 
 ---
 
 ## **Features**
 
 - **Advanced Wildcard Matching**:
-  - Supports wildcards (`*` and `**`) for flexible directory and file searches.
+  - Supports wildcards (`*` and `**`) for flexible directory and file searches. (e.g., `a\**\`).
 - **Parent Traversal**:
   - Use `..` to navigate to the parent directory and `...` to recursively traverse all parent directories.
 - **Exact Matching**:
   - Match specific directories by name.
 - **Tagged Search**:
-  - Identify directories containing a marker file or subdirectory.
+  - Identify directories containing a marker file or subdirectory. (e.g., `a\:tagged(.marker)\b`).
 - **Composable Expressions**:
   - Combine strategies for complex path resolutions, such as `...\\**\\kxd`.
 
@@ -38,7 +39,7 @@ PathResolver is a powerful and extensible library for resolving and evaluating f
 ```csharp
 var currentDir = "C:\\Test";
 var expression = "SubDir1\\SubSubDir1";
-var evaluator = new PathResolver(fileSystem: new MockFileSystem(currentDir, existingDirectories));
+var evaluator = new PathResolver();
 var result = evaluator.EvaluateExpression(expression);
 Console.WriteLine(result); // Output: "C:\\Test\\SubDir1\\SubSubDir1"
 ```
@@ -54,9 +55,9 @@ var result = evaluator.EvaluateExpression(expression);
 ### **Tagged Search**
 Find a directory containing `.marker` and a specific subpath:
 ```csharp
-var expression = "**\\:tagged(.marker):\\bin\\Debug\\kxd";
+var expression = "**\\:tagged(.marker):\\bin\\Debug";
 var result = evaluator.EvaluateExpression(expression);
-// Output: "C:\\Test\\SubDir2\\SubSubDir1\\bin\\Debug\\kxd"
+// Output: "C:\\Test\\SubDir2\\SubSubDir1\\bin\\Debug"
 ```
 
 ---
