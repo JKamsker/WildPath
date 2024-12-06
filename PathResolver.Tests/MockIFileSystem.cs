@@ -79,6 +79,22 @@ public class MockFileSystem : IFileSystem
         return string.Join(DirectorySeparatorChar, paths);
     }
 
+    public string GetFileName(string path)
+    {
+        var normalizedPath = NormalizeDirectoryPath(path);
+
+        // Find the last directory separator
+        int lastSeparatorIndex = normalizedPath.LastIndexOf(DirectorySeparatorChar);
+        if (lastSeparatorIndex == -1)
+        {
+            // This means there's no directory separator
+            return normalizedPath;
+        }
+
+        // Return everything after the last separator
+        return normalizedPath.Substring(lastSeparatorIndex + 1);
+    }
+
     private string NormalizeDirectoryPath(string path)
     {
         // Remove trailing directory separators

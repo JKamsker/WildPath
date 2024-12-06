@@ -10,4 +10,6 @@ public class RealFileSystem : IFileSystem
     public string Combine(params string[] paths) => Path.Combine(paths);
     
     public string CurrentDirectory => Directory.GetCurrentDirectory();
+    
+    public string GetFileName(string path) => Path.GetFileName(path);
 }

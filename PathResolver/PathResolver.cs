@@ -30,7 +30,7 @@ public class PathResolver
             throw new InvalidOperationException("Path is empty.");
         }
 
-        var result = segment.Evaluate(_currentDir);
+        var result = segment.Evaluate(_currentDir).FirstOrDefault();
         if (result == null)
         {
             throw new DirectoryNotFoundException(

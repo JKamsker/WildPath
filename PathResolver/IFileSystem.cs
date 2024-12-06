@@ -7,4 +7,5 @@ public interface IFileSystem
     char DirectorySeparatorChar { get; }
     string CurrentDirectory { get; }
     string Combine(params string[] paths);
+    string GetFileName(string path);
 }

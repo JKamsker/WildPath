@@ -1,6 +1,6 @@
 namespace PathResolver.Tests;
 
-public class UnitTest1
+public class GeneralTests
 {
     private static string[] GetExistingDirectories() =>
     [
@@ -8,24 +8,22 @@ public class UnitTest1
         "C:\\Test\\SubDir1\\SubSubDir1\\obj\\Debug\\net48",
         "C:\\Test\\SubDir2\\SubSubDir2"
     ];
-
+    
+    private const string DebugDir = "C:\\Test\\SubDir1\\SubSubDir1\\obj\\Debug\\net48";
+    
     [Theory]
     // Simple subpath
     [InlineData("C:\\Test", "SubDir1\\SubSubDir1", "C:\\Test\\SubDir1\\SubSubDir1")]
     
     // Go up with wildcard
-    [InlineData(
-        "C:\\Test\\SubDir1\\SubSubDir1\\obj\\Debug\\net48",
-        "...\\**\\kxd",
-        "C:\\Test\\SubDir1\\SubSubDir1\\bin\\Debug\\kxd"
-    )]
+    [InlineData(DebugDir, "...\\**\\kxd", "C:\\Test\\SubDir1\\SubSubDir1\\bin\\Debug\\kxd")]
     
     // Go up until we hit the parent
-    [InlineData("C:\\Test\\SubDir1\\SubSubDir1\\obj\\Debug\\net48", "...\\SubDir1", "C:\\Test\\SubDir1")]
-    [InlineData("C:\\Test\\SubDir1\\SubSubDir1\\obj\\Debug\\net48", "...\\Sub*", "C:\\Test\\SubDir1\\SubSubDir1")]
-    [InlineData("C:\\Test\\SubDir1\\SubSubDir1\\obj\\Debug\\net48", "...\\*Dir2", "C:\\Test\\SubDir2")]
-    [InlineData("C:\\Test\\SubDir1\\SubSubDir1\\obj\\Debug\\net48", "...\\Sub*Dir2", "C:\\Test\\SubDir2")]
-    [InlineData("C:\\Test\\SubDir1\\SubSubDir1\\obj\\Debug\\net48", "...\\*ub*Dir2", "C:\\Test\\SubDir2")]
+    [InlineData(DebugDir, "...\\SubDir1", "C:\\Test\\SubDir1")]
+    [InlineData(DebugDir, "...\\Sub*", "C:\\Test\\SubDir1\\SubSubDir1")]
+    [InlineData(DebugDir, "...\\*Dir2", "C:\\Test\\SubDir2")]
+    [InlineData(DebugDir, "...\\Sub*Dir2", "C:\\Test\\SubDir2")]
+    [InlineData(DebugDir, "...\\*ub*Dir2", "C:\\Test\\SubDir2")]
     public void EvaluateExpression_ReturnsCorrectDirectory_WhenSingleMatch(
         string currentdir,
         string expression,
