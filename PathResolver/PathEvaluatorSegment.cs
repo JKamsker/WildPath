@@ -16,13 +16,11 @@ public class PathEvaluatorSegment
 
         _strategy = new StrategyFactory(fileSystem).Create(segment);
     }
-
- 
-
+    
     public bool Matches(string path) => _strategy.Matches(path);
 
     public IEnumerable<string> Evaluate(string currentDirectory)
-        => _strategy.Evaluate(currentDirectory, _child, _fileSystem);
+        => _strategy.Evaluate(currentDirectory, _child);
 
     public static PathEvaluatorSegment? FromExpressions(string[] path, IFileSystem fileSystem)
     {

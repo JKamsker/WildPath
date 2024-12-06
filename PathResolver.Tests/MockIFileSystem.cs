@@ -95,6 +95,38 @@ public class MockFileSystem : IFileSystem
         return normalizedPath.Substring(lastSeparatorIndex + 1);
     }
 
+    public bool FileExists(string filePath)
+    {
+        var normalizedPath = NormalizeDirectoryPath(filePath);
+        return _directories.Contains(normalizedPath);
+    }
+
+    public bool DirectoryExists(string directoryPath)
+    {
+        var normalizedPath = NormalizeDirectoryPath(directoryPath);
+        if (_directories.Contains(normalizedPath))
+        {
+            return true;
+        }
+        
+        var combinedPath = string.Concat(normalizedPath, DirectorySeparatorChar);
+        foreach (var dir in _directories)
+        {
+            if (dir.StartsWith(combinedPath, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    // FileSystemEntryExists
+    public bool EntryExists(string path)
+    {
+        return DirectoryExists(path);
+    }
+
     private string NormalizeDirectoryPath(string path)
     {
         // Remove trailing directory separators
