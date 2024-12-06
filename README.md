@@ -1,9 +1,13 @@
-# **PathResolver**
+<img src="resources/logo.png" height="200px" alt="PathResolver Logo" style="float:left; margin-right: 10px;" /> 
 
-PathResolver is a powerful and extensible library for resolving and evaluating file system paths based on dynamic expressions. 
+# **WildPath**
+
+WildPath is a powerful and extensible library for resolving and evaluating file system paths based on dynamic expressions. 
 It supports advanced path traversal and pattern matching, making it suitable for applications like file searches, build systems, and custom path resolvers.
 
----
+<!-- Restore float -->
+<div style="clear:both;"></div>
+
 
 ## **Features**
 
@@ -107,6 +111,17 @@ Example tests include:
 ### Limit recursive search depth: 
 - ``...{1,3}\\**{1,3}\\:tagged(testhost.exe):\\fr`` should only search 1-3 directories deep.
 - ``...{4}\\**{4}\\:tagged(testhost.exe):\\fr`` should only search 4 directories deep.
+
+
+## Not as serious todos:
+
+### Search by file content:
+Be a little cray cray
+- ``...\\**\\:content(test.json, test):`` should search for files containing the string "test".
+
+### Seach within zip files:
+- ``...\\**\\:zip(test.zip):\\fr`` should search for files within a zip file named "test.zip".
+
 
 ### Add cancellation token support
 
