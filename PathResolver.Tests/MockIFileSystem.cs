@@ -48,8 +48,8 @@ public class MockFileSystem : IFileSystem
                     return separatorIndex == -1 ? dir : dir.Substring(0, prefixLength + separatorIndex);
                 })
                 .Where(dir => dir != null)! // filter out non-immediate directories
-                .ToList()
-            ;
+                ;
+        
         return result;
     }
 

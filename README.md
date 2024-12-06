@@ -101,6 +101,16 @@ Example tests include:
    ```
 4. Submit a pull request.
 
+
+## **Todo**
+
+### Limit recursive search depth: 
+- ``...{1,3}\\**{1,3}\\:tagged(testhost.exe):\\fr`` should only search 1-3 directories deep.
+- ``...{4}\\**{4}\\:tagged(testhost.exe):\\fr`` should only search 4 directories deep.
+
+### Add cancellation token support
+
+
 ---
 
 ## **License**
