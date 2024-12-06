@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace PathResolver;
+namespace WildPath;
 
 public class PathEvaluatorSegmentOld
 {

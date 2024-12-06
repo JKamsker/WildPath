@@ -1,4 +1,4 @@
-﻿namespace PathResolver;
+﻿namespace WildPath;
 
 internal static class SpanExtensions
 {

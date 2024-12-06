@@ -1,4 +1,4 @@
-namespace PathResolver;
+namespace WildPath;
 
 public interface IFileSystem
 {

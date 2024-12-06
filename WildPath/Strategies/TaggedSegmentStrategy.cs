@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace PathResolver.Strategies;
+namespace WildPath.Strategies;
 
 public class TaggedSegmentStrategy : ISegmentStrategy
 {

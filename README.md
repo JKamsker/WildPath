@@ -34,7 +34,7 @@ It supports advanced path traversal and pattern matching, making it suitable for
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/PathResolver.git
+   git clone https://github.com/your-username/WildPath.git
    ```
 2. Build the project using your favorite IDE or CLI:
    ```bash

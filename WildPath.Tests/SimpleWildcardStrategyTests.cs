@@ -1,6 +1,6 @@
-using PathResolver.Strategies;
+using WildPath.Strategies;
 
-namespace PathResolver.Tests;
+namespace WildPath.Tests;
 
 public class SimpleWildcardStrategyTests
 {

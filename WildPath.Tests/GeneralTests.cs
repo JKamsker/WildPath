@@ -1,4 +1,4 @@
-namespace PathResolver.Tests;
+namespace WildPath.Tests;
 
 public class GeneralTests
 {

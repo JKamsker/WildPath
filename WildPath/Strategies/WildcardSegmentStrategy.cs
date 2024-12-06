@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace PathResolver.Strategies;
+namespace WildPath.Strategies;
 
 public class WildcardSegmentStrategy : ISegmentStrategy
 {

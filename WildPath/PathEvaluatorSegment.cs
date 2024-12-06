@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using PathResolver.Strategies;
+using WildPath.Strategies;
 
-namespace PathResolver;
+namespace WildPath;
 
 public class PathEvaluatorSegment
 {

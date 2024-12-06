@@ -1,4 +1,4 @@
-﻿namespace PathResolver.Strategies;
+﻿namespace WildPath.Strategies;
 
 public class AnySegmentRecursivelyStrategy : ISegmentStrategy
 {

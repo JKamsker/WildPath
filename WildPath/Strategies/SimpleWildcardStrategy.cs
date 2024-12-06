@@ -1,4 +1,4 @@
-namespace PathResolver.Strategies;
+namespace WildPath.Strategies;
 
 /// <summary>
 /// "*World" or "Hello*" or "*llo*" will match "Hello World"

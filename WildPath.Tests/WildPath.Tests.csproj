@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PathResolver\PathResolver.csproj" />
+      <ProjectReference Include="..\WildPath\WildPath.csproj" />
     </ItemGroup>
 
 </Project>

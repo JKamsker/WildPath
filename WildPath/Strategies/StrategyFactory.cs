@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace PathResolver.Strategies;
+namespace WildPath.Strategies;
 
 public class StrategyFactory
 {
