@@ -1,6 +1,12 @@
-<img src="resources/logo.png" height="200px" alt="PathResolver Logo" style="float:left; margin-right: 10px;" /> 
 
-# **WildPath**
+<p align="center">
+  <a>
+    <picture>
+      <img src="resources/logo-transparent.png" height="128">
+    </picture>
+    <h1 align="center">WildPath</h1>
+  </a>
+</p>
 
 WildPath is a powerful and extensible library for resolving and evaluating file system paths based on dynamic expressions. 
 It supports advanced path traversal and pattern matching, making it suitable for applications like file searches, build systems, and custom path resolvers.
