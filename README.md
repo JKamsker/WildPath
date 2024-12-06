@@ -47,6 +47,8 @@ It supports advanced path traversal and pattern matching, making it suitable for
 
 ### **Basic Path Matching**
 ```csharp
+using WildPath;
+
 var currentDir = "C:\\Test";
 var expression = "SubDir1\\SubSubDir1";
 var evaluator = new PathResolver();
