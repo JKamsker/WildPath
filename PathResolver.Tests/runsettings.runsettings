@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- File name extension must be .runsettings -->
+<RunSettings>
+    <RunConfiguration>
+        <EnvironmentVariables>
+            <!-- List of environment variables we want to set-->
+            <COMPLUS_ZapDisable>1</COMPLUS_ZapDisable>
+            <COMPLUS_JitMinOpts>1</COMPLUS_JitMinOpts>
+            <COMPlus_TieredCompilation>0</COMPlus_TieredCompilation>
+            <COMPlus_ReadyToRun>0</COMPlus_ReadyToRun>
+        </EnvironmentVariables>
+    </RunConfiguration>
+</RunSettings>
