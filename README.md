@@ -131,6 +131,8 @@ Example tests include:
 - ``...{1,3}\\**{1,3}\\:tagged(testhost.exe):\\fr`` should only search 1-3 directories deep.
 - ``...{4}\\**{4}\\:tagged(testhost.exe):\\fr`` should only search 4 directories deep.
 
+### Add cancellation token support
+Like seriously, this libaray begs for being ddosed.
 
 ## Not as serious todos:
 
@@ -142,7 +144,7 @@ Be a little cray cray
 - ``...\\**\\:zip(test.zip):\\fr`` should search for files within a zip file named "test.zip".
 
 
-### Add cancellation token support
+
 
 
 ---
