@@ -8,8 +8,7 @@
   </a>
 </p>
 
-WildPath is a powerful and extensible library for resolving and evaluating file system paths based on dynamic expressions. 
-It supports advanced path traversal and pattern matching, making it suitable for applications like file searches, build systems, and custom path resolvers.
+WildPath is a library for advanced file-system path resolution. It provides pattern matching and dynamic path traversal capabilities through expressions, making it ideal for file searches and build systems.
 
 <!-- Restore float -->
 <div style="clear:both;"></div>
