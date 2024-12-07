@@ -49,28 +49,39 @@ It supports advanced path traversal and pattern matching, making it suitable for
 ```csharp
 using WildPath;
 
-var currentDir = "C:\\Test";
-var expression = "SubDir1\\SubSubDir1";
-var evaluator = new PathResolver();
-var result = evaluator.EvaluateExpression(expression);
-Console.WriteLine(result); // Output: "C:\\Test\\SubDir1\\SubSubDir1"
+var result = PathResolver.Resolve("SubDir1\\SubSubDir1");
+Console.WriteLine(result); 
+// Output (assuming current directory = "C:\\Test"): "C:\\Test\\SubDir1\\SubSubDir1"
 ```
 
 ### **Wildcard Search**
 Find a directory named `kxd`:
 ```csharp
-var expression = "...\\**\\kxd";
-var result = evaluator.EvaluateExpression(expression);
+var result = PathResolver.Resolve("...\\**\\kxd");
 // Output: "C:\\Test\\SubDir1\\SubSubDir1\\bin\\Debug\\kxd"
 ```
 
 ### **Tagged Search**
 Find a directory containing `.marker` and a specific subpath:
 ```csharp
-var expression = "**\\:tagged(.marker):\\bin\\Debug";
-var result = evaluator.EvaluateExpression(expression);
+var result = PathResolver.Resolve("**\\:tagged(.marker):\\bin\\Debug");
 // Output: "C:\\Test\\SubDir2\\SubSubDir1\\bin\\Debug"
 ```
+
+
+### **Customized Path Resolution**
+To use a custom **current directory**, **separator** or even a **different file system**, you can new up a `PathResolver` and use the same API:
+```csharp
+using WildPath;
+
+var currentDir = "C:\\Test";
+var expression = "SubDir1\\SubSubDir1";
+
+var resolver = new PathResolver(currentDir);
+var result = resolver.Resolve(expression);
+Console.WriteLine(result); // Output: "C:\\Test\\SubDir1\\SubSubDir1"
+```
+
 
 ---
 
