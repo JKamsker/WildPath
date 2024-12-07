@@ -1,6 +1,8 @@
-namespace WildPath;
+using WildPath.Abstractions;
 
-public class RealFileSystem : IFileSystem
+namespace WildPath.Internals;
+
+internal class RealFileSystem : IFileSystem
 {
     public char DirectorySeparatorChar => Path.DirectorySeparatorChar;
     public string CurrentDirectory => Directory.GetCurrentDirectory();

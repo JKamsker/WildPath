@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using WildPath.Abstractions;
 using WildPath.Strategies;
 
 namespace WildPath;

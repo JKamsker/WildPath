@@ -1,4 +1,4 @@
-namespace WildPath;
+namespace WildPath.Abstractions;
 
 public interface IFileSystem
 {

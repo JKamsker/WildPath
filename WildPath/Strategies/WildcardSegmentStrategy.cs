@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using WildPath.Abstractions;
 
 namespace WildPath.Strategies;
 

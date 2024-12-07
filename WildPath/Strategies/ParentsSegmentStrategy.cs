@@ -1,4 +1,6 @@
-﻿namespace WildPath.Strategies;
+﻿using WildPath.Abstractions;
+
+namespace WildPath.Strategies;
 
 public class ParentsSegmentStrategy : ISegmentStrategy
 {

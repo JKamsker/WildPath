@@ -1,3 +1,5 @@
+using WildPath.Abstractions;
+
 namespace WildPath.Tests;
 
 public class MockFileSystem : IFileSystem

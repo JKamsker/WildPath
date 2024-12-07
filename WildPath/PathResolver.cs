@@ -1,4 +1,7 @@
-﻿namespace WildPath;
+﻿using WildPath.Abstractions;
+using WildPath.Internals;
+
+namespace WildPath;
 
 public class PathResolver
 {
