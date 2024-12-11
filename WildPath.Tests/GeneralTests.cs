@@ -42,38 +42,22 @@ public class GeneralTests
         // Assert
         Assert.Equal(expectation, result);
     }
-}
-
-/// <summary>
-/// Tests the tagged strategy
-/// </summary>
-public class TaggedTests
-{
+    
+    // Rooted path
     [Fact]
-    public void Folder_Containing_Marker_Folder_Produces_Correct_Path()
+    public void RootedDirectory_ReturnsCorrectDirectory_Ignores_CurrentDir()
     {
         // Arrange
         var currentDir = "C:\\Test";
-        var existingDirectories = new[]
-        {
-            "C:\\Test\\SubDir1\\SubSubDir1\\bin\\Debug\\kxd",
-            "C:\\Test\\SubDir1\\SubSubDir1\\obj\\Debug\\net48",
-            
-            "C:\\Test\\SubDir2\\SubSubDir1\\bin\\Debug\\kxd",
-            "C:\\Test\\SubDir2\\SubSubDir1\\obj\\Debug\\net48",
-            "C:\\Test\\SubDir2\\SubSubDir1\\.marker",
-            
-            "C:\\Test\\SubDir3\\SubSubDir1\\bin\\Debug\\kxd",
-            "C:\\Test\\SubDir3\\SubSubDir1\\obj\\Debug\\net48",
-        };
+        var existingDirectories = GetExistingDirectories();
 
         var mockFileSystem = new MockFileSystem(currentDir, existingDirectories);
         var evaluator = new PathResolver(fileSystem: mockFileSystem);
 
         // Act
-        var result = evaluator.EvaluateExpression("**\\:tagged(.marker):\\bin\\Debug\\kxd");
+        var result = evaluator.EvaluateExpression("C:\\Test\\SubDir1\\SubSubDir*");
 
         // Assert
-        Assert.Equal("C:\\Test\\SubDir2\\SubSubDir1\\bin\\Debug\\kxd", result);
+        Assert.Equal("C:\\Test\\SubDir1\\SubSubDir1", result);
     }
 }

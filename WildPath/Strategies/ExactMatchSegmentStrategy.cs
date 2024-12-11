@@ -2,10 +2,19 @@
 
 namespace WildPath.Strategies;
 
-internal class ExactMatchSegmentStrategy : ISegmentStrategy
+internal class ExactMatchSegmentStrategy : ISegmentStrategy, IParentSegmentAware
 {
     private readonly string _segment;
     private readonly IFileSystem _fileSystem;
+
+    private IPathEvaluatorSegment _parentSegment;
+    private bool _isRootSegment;
+
+    IPathEvaluatorSegment IParentSegmentAware.ParentSegment
+    {
+        get => _parentSegment;
+        set => UpdateParentSegment(value);
+    }
 
     public ExactMatchSegmentStrategy(string segment, IFileSystem fileSystem)
     {
@@ -17,10 +26,24 @@ internal class ExactMatchSegmentStrategy : ISegmentStrategy
 
     public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
     {
-        var directories = _fileSystem
-            .EnumerateDirectories(currentDirectory)
+        IEnumerable<string> directories = Array.Empty<string>();
+        if (_isRootSegment)
+        {
+            directories = new[] { _segment };
+        }
+        else
+        {
+            directories = _fileSystem
+                .EnumerateDirectories(currentDirectory);
+        }
+
+
+        directories = directories
             .Where(d => Matches(_fileSystem.GetFileName(d) ?? string.Empty));
-        
+
+
+
+
         foreach (var directory in directories)
         {
             if (child == null)
@@ -34,5 +57,21 @@ internal class ExactMatchSegmentStrategy : ISegmentStrategy
                 yield return subDir;
             }
         }
+    }
+
+    private void UpdateParentSegment(IPathEvaluatorSegment value)
+    {
+        _parentSegment = value;
+        _isRootSegment = IsRootDirectory(_segment);
+    }
+
+    private bool IsRootDirectory(string segment)
+    {
+        var isFirst = ((IParentSegmentAware)this).ParentSegment?.IsFirst ?? false;
+
+        return isFirst
+            && segment.Length == 2
+            && segment[1] == ':'
+            && segment[0] >= 'A' && segment[0] <= 'Z';
     }
 }

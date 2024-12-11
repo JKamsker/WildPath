@@ -1,16 +1,16 @@
 ﻿namespace WildPath.Console;
 
-class Program
+internal class Program
 {
-    static void Main(string[] args)
+    private static void Main(string[] args)
     {
-        PathResolver.Resolve("...\\WildPath.Tests\\**\\net8.0");
-        
-        
+        var cdir = System.IO.Directory.GetCurrentDirectory();
+
+        var res = PathResolver.Resolve(cdir + "\\...\\WildPath.Tests\\**\\net8.0");
+
         var resolver = new PathResolver();
         var path = resolver.Resolve("...\\WildPath.Tests\\**\\net8.0");
-        
-        
+
         // var path = resolver.Resolve("...{1,3}\\**{1,3}\\:tagged(testhost.exe):\\fr");
         System.Console.WriteLine($"Path: {path}");
     }

@@ -1,4 +1,6 @@
-﻿using WildPath.Abstractions;
+﻿using System.ComponentModel;
+
+using WildPath.Abstractions;
 using WildPath.Internals;
 
 namespace WildPath;
@@ -68,6 +70,8 @@ public class PathResolver
     internal IEnumerable<string> EvaluateAll(string[] path)
     {
         var segment = PathEvaluatorSegment.FromExpressions(path, _fileSystem);
+        var enumerated = segment.EnumerateChildren().ToArray();
+
         if (segment == null)
         {
             throw new InvalidOperationException("Path is empty.");
@@ -77,6 +81,8 @@ public class PathResolver
     }
 }
 
+
+[EditorBrowsable(EditorBrowsableState.Never)]
 /// <summary>
 /// Provides facade extension methods for <see cref="PathResolver"/>.
 /// </summary>
