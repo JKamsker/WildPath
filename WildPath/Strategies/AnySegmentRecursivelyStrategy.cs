@@ -2,7 +2,7 @@
 
 namespace WildPath.Strategies;
 
-public class AnySegmentRecursivelyStrategy : ISegmentStrategy
+internal class AnySegmentRecursivelyStrategy : ISegmentStrategy
 {
     private readonly string _segment;
     private readonly IFileSystem _fileSystem;
@@ -15,7 +15,7 @@ public class AnySegmentRecursivelyStrategy : ISegmentStrategy
     
     public bool Matches(string path) => true;
 
-    public IEnumerable<string> Evaluate(string currentDirectory, PathEvaluatorSegment? child)
+    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
     {
         var directories = EnumerateAllSubdirectories(currentDirectory);
         foreach (var directory in directories)

@@ -2,7 +2,7 @@
 
 namespace WildPath.Strategies;
 
-public class ParentsSegmentStrategy : ISegmentStrategy
+internal class ParentsSegmentStrategy : ISegmentStrategy
 {
     private readonly string _segment;
     private readonly IFileSystem _fileSystem;
@@ -18,7 +18,7 @@ public class ParentsSegmentStrategy : ISegmentStrategy
 
     public bool Matches(string path) => true;
 
-    public IEnumerable<string> Evaluate(string currentDirectory, PathEvaluatorSegment? child)
+    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
     {
         while (currentDirectory != null)
         {

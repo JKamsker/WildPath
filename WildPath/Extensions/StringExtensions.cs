@@ -1,6 +1,9 @@
+using System.Runtime.CompilerServices;
+using System.Text;
+
 namespace WildPath.Extensions;
 
-public static class StringExtensions
+internal static class StringExtensions
 {
     /// <summary>
     /// Gets a substring between two strings. The first on is at the start and the second one is at the end.
@@ -23,4 +26,70 @@ public static class StringExtensions
         result = string.Empty;
         return false;
     }
+
+#if NET48 || NETSTANDARD2_0
+
+    public static bool Contains(this string source, string value, StringComparison comparisonType)
+    {
+        return source.IndexOf(value, comparisonType) >= 0;
+    }
+
+    // EndsWith and StartsWith 
+    public static bool EndsWith(this string source, char value)
+    {
+        return source[^1] == value;
+    }
+
+    public static bool StartsWith(this string source, char value)
+    {
+        return source[0] == value;
+    }
+    
+
+    public static unsafe string ConvertToString(this ReadOnlySpan<char> memory)
+    {
+        if (memory.IsEmpty)
+        {
+            return string.Empty;
+        }
+
+        fixed (char* ptr = memory)
+        {
+            return new string(ptr, 0, memory.Length);
+        }
+    }
+
+    public static string Join(this string[] values, char separator)
+    {
+        if (values == null)
+        {
+            throw new ArgumentNullException(nameof(values));
+        }
+        if (values.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        var result = new StringBuilder();
+        result.Append(values[0]);
+        for (int i = 1; i < values.Length; i++)
+        {
+            result.Append(separator);
+            result.Append(values[i]);
+        }
+        return result.ToString();
+    }
+
+#else
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string ConvertToString(this ReadOnlySpan<char> memory)
+    {
+        return new string(memory);
+    }
+
+    public static string Join(this string[] values, char separator)
+    {
+        return string.Join(separator, values);
+    }
+#endif
 }

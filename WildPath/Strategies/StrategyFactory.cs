@@ -1,9 +1,10 @@
 ﻿using System.Net;
+
 using WildPath.Abstractions;
 
 namespace WildPath.Strategies;
 
-public class StrategyFactory
+internal class StrategyFactory
 {
     private readonly IFileSystem _fileSystem;
 

@@ -1,9 +1,10 @@
 ﻿using System.Text.RegularExpressions;
+
 using WildPath.Abstractions;
 
 namespace WildPath.Strategies;
 
-public class WildcardSegmentStrategy : ISegmentStrategy
+internal class WildcardSegmentStrategy : ISegmentStrategy
 {
     private readonly string _pattern;
     private readonly IFileSystem _fileSystem;
@@ -16,7 +17,7 @@ public class WildcardSegmentStrategy : ISegmentStrategy
 
     public bool Matches(string path) => Regex.IsMatch(path, _pattern);
 
-    public IEnumerable<string> Evaluate(string currentDirectory, PathEvaluatorSegment? child)
+    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
     {
         var directories = _fileSystem
             .EnumerateDirectories(currentDirectory)

@@ -1,10 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+
 using WildPath.Abstractions;
 using WildPath.Extensions;
 
 namespace WildPath.Strategies;
 
-public class TaggedSegmentStrategy : ISegmentStrategy
+internal class TaggedSegmentStrategy : ISegmentStrategy
 {
     private readonly string _marker;
     private readonly IFileSystem _fileSystem;
@@ -21,7 +22,7 @@ public class TaggedSegmentStrategy : ISegmentStrategy
         return true;
     }
 
-    public IEnumerable<string> Evaluate(string currentDirectory, PathEvaluatorSegment? child)
+    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
     {
         var directories = _fileSystem.EnumerateDirectories(currentDirectory);
 

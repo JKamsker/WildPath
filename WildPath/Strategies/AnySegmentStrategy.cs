@@ -2,7 +2,7 @@
 
 namespace WildPath.Strategies;
 
-public class AnySegmentStrategy : ISegmentStrategy
+internal class AnySegmentStrategy : ISegmentStrategy
 {
     private readonly string _segment;
     private readonly IFileSystem _fileSystem;
@@ -15,7 +15,7 @@ public class AnySegmentStrategy : ISegmentStrategy
 
     public bool Matches(string path) => true;
 
-    public IEnumerable<string> Evaluate(string currentDirectory, PathEvaluatorSegment? child)
+    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
     {
         foreach (var directory in _fileSystem.EnumerateDirectories(currentDirectory))
         {

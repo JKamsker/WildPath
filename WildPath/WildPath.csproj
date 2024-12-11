@@ -1,10 +1,53 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <LangVersion>latest</LangVersion>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net8.0;net48;netstandard2.0</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<PackageIcon>logo-transparent-128x128.png</PackageIcon>
+	</PropertyGroup>
+
+
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<!-- Basic metadata -->
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageId>WildPath</PackageId>
+		<Version>0.0.2</Version>
+		<Authors>Jonas Kamsker</Authors>
+		<Company>JKamsker</Company>
+		<Product>WildPath</Product>
+		<Description>WildPath is a library for advanced file-system path resolution, with pattern matching and dynamic traversal capabilities.</Description>
+		<PackageTags>wildcard path filesystem traversal glob globbing</PackageTags>
+		<RepositoryUrl>https://github.com/JKamsker/WildPath</RepositoryUrl>
+
+		<!-- Optional additional metadata -->
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/JKamsker/WildPath</PackageProjectUrl>
+		<RepositoryType>git</RepositoryType>
+		<Copyright>Jonas Kamsker © 2024</Copyright>
+		
+	</PropertyGroup>
+
+
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net48' Or '$(TargetFramework)' == 'netstandard2.0'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net48'  Or '$(TargetFramework)' == 'netstandard2.0'">
+		<PackageReference Include="System.Memory" Version="4.6.0" />
+
+		<PackageReference Include="PolySharp" Version="1.15.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="..\resources\logo-transparent-128x128.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	</ItemGroup>
 
 </Project>

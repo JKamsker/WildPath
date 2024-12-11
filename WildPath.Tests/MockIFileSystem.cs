@@ -1,5 +1,7 @@
 using WildPath.Abstractions;
 
+using WildPath.Extensions;
+
 namespace WildPath.Tests;
 
 public class MockFileSystem : IFileSystem
@@ -78,7 +80,7 @@ public class MockFileSystem : IFileSystem
 
     public string Combine(params string[] paths)
     {
-        return string.Join(DirectorySeparatorChar, paths);
+        return paths.Join(DirectorySeparatorChar);
     }
 
     public string GetFileName(string path)

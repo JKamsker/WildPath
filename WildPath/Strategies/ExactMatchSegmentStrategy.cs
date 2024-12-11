@@ -2,7 +2,7 @@
 
 namespace WildPath.Strategies;
 
-public class ExactMatchSegmentStrategy : ISegmentStrategy
+internal class ExactMatchSegmentStrategy : ISegmentStrategy
 {
     private readonly string _segment;
     private readonly IFileSystem _fileSystem;
@@ -15,7 +15,7 @@ public class ExactMatchSegmentStrategy : ISegmentStrategy
 
     public bool Matches(string path) => string.Equals(_segment, path, StringComparison.OrdinalIgnoreCase);
 
-    public IEnumerable<string> Evaluate(string currentDirectory, PathEvaluatorSegment? child)
+    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
     {
         var directories = _fileSystem
             .EnumerateDirectories(currentDirectory)

@@ -1,10 +1,9 @@
-using System.ComponentModel.DataAnnotations;
 using WildPath.Abstractions;
 using WildPath.Strategies;
 
 namespace WildPath;
 
-public class PathEvaluatorSegment
+public class PathEvaluatorSegment : IPathEvaluatorSegment
 {
     private readonly ISegmentStrategy _strategy;
     private readonly PathEvaluatorSegment? _child;

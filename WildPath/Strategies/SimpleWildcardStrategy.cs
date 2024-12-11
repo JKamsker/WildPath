@@ -7,7 +7,7 @@ namespace WildPath.Strategies;
 /// "*World" or "Hello*" or "*llo*" will match "Hello World"
 /// Uses no regex, just string operations
 /// </summary>
-public class SimpleWildcardStrategy : ISegmentStrategy
+internal class SimpleWildcardStrategy : ISegmentStrategy
 {
     private readonly string _segment;
     private readonly IFileSystem _fileSystem;
@@ -55,7 +55,7 @@ public class SimpleWildcardStrategy : ISegmentStrategy
     public bool Matches(string path)
         => _matcher(path);
 
-    public IEnumerable<string> Evaluate(string currentDirectory, PathEvaluatorSegment? child)
+    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
     {
         var directories = _fileSystem
             .EnumerateDirectories(currentDirectory);
@@ -106,8 +106,8 @@ public class SimpleWildcardStrategy : ISegmentStrategy
         (
             segment: segment,
             fileSystem: fileSystem,
-            partOne: new string(partOne),
-            partTwo: new string(partTwo),
+            partOne: partOne.ConvertToString(),
+            partTwo: partTwo.ConvertToString(),
             count: count,
             startsWithWildcard,
             endsWithWildcard
