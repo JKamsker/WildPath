@@ -58,8 +58,9 @@ internal class SimpleWildcardStrategy : ISegmentStrategy
     public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
     {
         var directories = _fileSystem
-            .EnumerateDirectories(currentDirectory);
-
+            // .EnumerateDirectories(currentDirectory);
+            .EnumerateFileSystemEntries(currentDirectory);
+        
         foreach (var directory in directories)
         {
             // Intentionally not putting this into linq to improve performance

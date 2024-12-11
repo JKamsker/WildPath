@@ -29,6 +29,11 @@ public class MockFileSystem : IFileSystem
 
     public IEnumerable<string> EnumerateDirectories(string path)
     {
+        return EnumerateFileSystemEntries(path);
+    }
+
+    public IEnumerable<string> EnumerateFileSystemEntries(string path)
+    {
         var normalizedPath = NormalizeDirectoryPath(path);
 
         // An "immediate subdirectory" is a directory that:
@@ -52,10 +57,11 @@ public class MockFileSystem : IFileSystem
                     return separatorIndex == -1 ? dir : dir.Substring(0, prefixLength + separatorIndex);
                 })
                 .Where(dir => dir != null)! // filter out non-immediate directories
-                ;
+            ;
         
         return result;
     }
+
 
     public string? GetDirectoryName(string path)
     {
@@ -131,6 +137,7 @@ public class MockFileSystem : IFileSystem
         return DirectoryExists(path);
     }
 
+  
     private string NormalizeDirectoryPath(string path)
     {
         // Remove trailing directory separators

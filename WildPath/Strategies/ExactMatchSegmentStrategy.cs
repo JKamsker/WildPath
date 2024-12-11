@@ -34,16 +34,12 @@ internal class ExactMatchSegmentStrategy : ISegmentStrategy, IParentSegmentAware
         else
         {
             directories = _fileSystem
-                .EnumerateDirectories(currentDirectory);
+                .EnumerateFileSystemEntries(currentDirectory);
         }
-
-
+        
         directories = directories
             .Where(d => Matches(_fileSystem.GetFileName(d) ?? string.Empty));
-
-
-
-
+        
         foreach (var directory in directories)
         {
             if (child == null)

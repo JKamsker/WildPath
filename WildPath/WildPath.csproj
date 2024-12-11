@@ -13,7 +13,7 @@
 		<!-- Basic metadata -->
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>WildPath</PackageId>
-		<Version>0.0.3</Version>
+		<Version>0.0.5</Version>
 		<Authors>Jonas Kamsker</Authors>
 		<Company>JKamsker</Company>
 		<Product>WildPath</Product>

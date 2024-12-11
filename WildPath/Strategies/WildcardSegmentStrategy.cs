@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-
 using WildPath.Abstractions;
 
 namespace WildPath.Strategies;
@@ -20,7 +19,8 @@ internal class WildcardSegmentStrategy : ISegmentStrategy
     public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
     {
         var directories = _fileSystem
-            .EnumerateDirectories(currentDirectory)
+            // .EnumerateDirectories(currentDirectory)
+            .EnumerateFileSystemEntries(currentDirectory)
             .Where(d => Matches(_fileSystem.GetFileName(d) ?? string.Empty));
 
         foreach (var directory in directories)

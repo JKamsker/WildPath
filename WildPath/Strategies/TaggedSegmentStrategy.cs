@@ -5,6 +5,9 @@ using WildPath.Extensions;
 
 namespace WildPath.Strategies;
 
+/// <summary>
+/// Does parent directories contain a marker file?
+/// </summary>
 internal class TaggedSegmentStrategy : ISegmentStrategy
 {
     private readonly string _marker;

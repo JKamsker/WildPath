@@ -18,4 +18,5 @@ public interface IFileSystem
     bool DirectoryExists(string directoryPath);
 
     bool EntryExists(string path);
+    IEnumerable<string> EnumerateFileSystemEntries(string path);
 }
