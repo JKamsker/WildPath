@@ -1,26 +1,62 @@
 ﻿namespace WildPath.Console;
 
-internal class Program
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Spectre.Console;
+
+class Program
 {
-    private static void Main(string[] args)
+    static async Task Main(string[] args)
     {
-        var cdir = System.IO.Directory.GetCurrentDirectory();
-
-        // var res = PathResolver.Resolve(cdir + "\\...\\WildPath.Tests\\**\\net8.0\\*.dll");
-
-        var resolved = PathResolver
-            .ResolveAll("...\\**", TimeSpan.FromSeconds(1).ToCancellationToken());
+        AnsiConsole.Write(new FigletText("WildPath Shell").Centered().Color(Color.Green));
+        AnsiConsole.MarkupLine("[bold yellow]Type a path expression to evaluate, or type 'exit' to quit.[/]");
         
-        foreach (var path in resolved)
+        CancellationTokenSource cts = default;
+        
+        // Listen to Ctrl+C and cancel the evaluation task if needed
+        Console.CancelKeyPress += (_, args) =>
         {
-            System.Console.WriteLine($"Path: {path}");
+            if (cts is null || cts.IsCancellationRequested)
+            {
+                return;
+            }
+
+            args.Cancel = true;
+            cts?.Cancel();
+        };
+        
+        while (true)
+        {
+            try
+            {
+                // Capture the user's input
+                string? input = AnsiConsole.Ask<string>("Type path expression:");
+                cts = TimeSpan.FromSeconds(1).ToCancellationTokenSource();
+                
+                // End process
+                if (string.Equals(input.Trim(), "exit", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    cts.Cancel();
+                    break;
+                }
+
+
+                var resolved = PathResolver
+                    .ResolveAll(input, cts.Token)
+                    .Take(10);
+                
+                foreach (var item in resolved)
+                {
+                    AnsiConsole.MarkupLine($"[green]Resolved:[/] {item}");
+                }
+            }
+            catch (OperationCanceledException e)
+            {
+            }
         }
-
-
-        // var resolver = new PathResolver();
-        // var path = resolver.Resolve("...\\WildPath.Tests\\**\\net8.0");
-        //
-        // // var path = resolver.Resolve("...{1,3}\\**{1,3}\\:tagged(testhost.exe):\\fr");
-        // System.Console.WriteLine($"Path: {path}");
     }
 }
