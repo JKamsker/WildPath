@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+
 using WildPath.Abstractions;
 
 namespace WildPath.Strategies;
@@ -16,21 +17,32 @@ internal class WildcardSegmentStrategy : ISegmentStrategy
 
     public bool Matches(string path) => Regex.IsMatch(path, _pattern);
 
-    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
+    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
     {
         var directories = _fileSystem
-            // .EnumerateDirectories(currentDirectory)
             .EnumerateFileSystemEntries(currentDirectory)
             .Where(d => Matches(_fileSystem.GetFileName(d) ?? string.Empty));
 
         foreach (var directory in directories)
         {
+            if (token.IsCancellationRequested)
+            {
+                yield break;
+            }
+
             if (child == null)
+            {
                 yield return directory;
+            }
             else
             {
-                foreach (var subDir in child.Evaluate(directory))
+                foreach (var subDir in child.Evaluate(directory, token))
                 {
+                    if (token.IsCancellationRequested)
+                    {
+                        yield break;
+                    }
+
                     yield return subDir;
                 }
             }

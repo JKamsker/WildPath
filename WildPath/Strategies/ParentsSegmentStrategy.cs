@@ -10,7 +10,9 @@ internal class ParentsSegmentStrategy : ISegmentStrategy
     public ParentsSegmentStrategy(string segment, IFileSystem fileSystem)
     {
         if (!string.Equals(segment, "...", StringComparison.OrdinalIgnoreCase))
+        {
             throw new ArgumentException("ParentsSegmentStrategy can only be used with '...' segment", nameof(segment));
+        }
 
         _segment = segment;
         _fileSystem = fileSystem;
@@ -18,9 +20,9 @@ internal class ParentsSegmentStrategy : ISegmentStrategy
 
     public bool Matches(string path) => true;
 
-    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
+    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
     {
-        while (currentDirectory != null)
+        while (currentDirectory != null && !token.IsCancellationRequested)
         {
             if (child == null)
             {
@@ -28,7 +30,7 @@ internal class ParentsSegmentStrategy : ISegmentStrategy
                 continue;
             }
 
-            foreach (var result in child.Evaluate(currentDirectory))
+            foreach (var result in child.Evaluate(currentDirectory, token))
             {
                 yield return result;
             }

@@ -23,35 +23,35 @@ public class PathResolver
         DirectorySeparatorChar = fileSystem.DirectorySeparatorChar;
     }
 
-    public static string Resolve(string expression)
+    public static string Resolve(string expression, CancellationToken token = default)
     {
-        return _default.EvaluateExpression(expression);
+        return _default.EvaluateExpression(expression, token);
     }
 
-    public static string Resolve(params string[] path)
+    public static string Resolve(string[] pathSegments, CancellationToken token = default)
     {
-        return _default.EvaluateExpression(path);
+        return _default.EvaluateExpression(pathSegments, token);
     }
 
-    public static IEnumerable<string> ResolveAll(string path)
+    public static IEnumerable<string> ResolveAll(string path, CancellationToken token = default)
     {
-        return _default.EvaluateAll(path);
+        return _default.EvaluateAll(path, token);
     }
 
-    public static IEnumerable<string> ResolveAll(params string[] path)
+    public static IEnumerable<string> ResolveAll(string[] pathSegments, CancellationToken token = default)
     {
-        return _default.EvaluateAll(path);
+        return _default.EvaluateAll(pathSegments, token);
     }
 
-    internal string EvaluateExpression(string path)
+    internal string EvaluateExpression(string path, CancellationToken token = default)
     {
         var segments = path.Split(DirectorySeparatorChar);
-        return EvaluateExpression(segments);
+        return EvaluateExpression(segments, token);
     }
 
-    internal string EvaluateExpression(params string[] path)
+    internal string EvaluateExpression(string[] path, CancellationToken token = default)
     {
-        var result = EvaluateAll(path).FirstOrDefault();
+        var result = EvaluateAll(path, token).FirstOrDefault();
         if (result == null)
         {
             throw new DirectoryNotFoundException(
@@ -61,23 +61,21 @@ public class PathResolver
         return result;
     }
 
-    internal IEnumerable<string> EvaluateAll(string path)
+    internal IEnumerable<string> EvaluateAll(string path, CancellationToken token = default)
     {
         var segments = path.Split(DirectorySeparatorChar);
-        return EvaluateAll(segments);
+        return EvaluateAll(segments, token);
     }
 
-    internal IEnumerable<string> EvaluateAll(string[] path)
+    internal IEnumerable<string> EvaluateAll(string[] pathSegments, CancellationToken token = default)
     {
-        var segment = PathEvaluatorSegment.FromExpressions(path, _fileSystem);
-        var enumerated = segment.EnumerateChildren().ToArray();
-
+        var segment = PathEvaluatorSegment.FromExpressions(pathSegments, _fileSystem);
         if (segment == null)
         {
             throw new InvalidOperationException("Path is empty.");
         }
 
-        return segment.Evaluate(_currentDir);
+        return segment.Evaluate(_currentDir, token);
     }
 }
 

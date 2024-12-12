@@ -24,7 +24,7 @@ internal class ExactMatchSegmentStrategy : ISegmentStrategy, IParentSegmentAware
 
     public bool Matches(string path) => string.Equals(_segment, path, StringComparison.OrdinalIgnoreCase);
 
-    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
+    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
     {
         IEnumerable<string> directories = Array.Empty<string>();
         if (_isRootSegment)
@@ -36,20 +36,29 @@ internal class ExactMatchSegmentStrategy : ISegmentStrategy, IParentSegmentAware
             directories = _fileSystem
                 .EnumerateFileSystemEntries(currentDirectory);
         }
-        
+
         directories = directories
             .Where(d => Matches(_fileSystem.GetFileName(d) ?? string.Empty));
-        
+
         foreach (var directory in directories)
         {
+            if (token.IsCancellationRequested)
+            {
+                yield break;
+            }
+
             if (child == null)
             {
                 yield return directory;
                 continue;
             }
 
-            foreach (var subDir in child.Evaluate(directory))
+            foreach (var subDir in child.Evaluate(directory, token))
             {
+                if (token.IsCancellationRequested)
+                {
+                    yield break;
+                }
                 yield return subDir;
             }
         }

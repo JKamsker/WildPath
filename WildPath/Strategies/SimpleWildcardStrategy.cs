@@ -55,15 +55,18 @@ internal class SimpleWildcardStrategy : ISegmentStrategy
     public bool Matches(string path)
         => _matcher(path);
 
-    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
+    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
     {
         var directories = _fileSystem
-            // .EnumerateDirectories(currentDirectory);
             .EnumerateFileSystemEntries(currentDirectory);
-        
+
         foreach (var directory in directories)
         {
-            // Intentionally not putting this into linq to improve performance
+            if (token.IsCancellationRequested)
+            {
+                yield break;
+            }
+
             if (!Matches(_fileSystem.GetFileName(directory) ?? string.Empty))
             {
                 continue;
@@ -75,7 +78,7 @@ internal class SimpleWildcardStrategy : ISegmentStrategy
                 continue;
             }
 
-            foreach (var subDir in child.Evaluate(directory))
+            foreach (var subDir in child.Evaluate(directory, token))
             {
                 yield return subDir;
             }

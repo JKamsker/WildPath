@@ -20,10 +20,14 @@ internal class ParentSegmentStrategy : ISegmentStrategy
 
     public bool Matches(string path) => true;
 
-    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
+    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
     {
+        token.ThrowIfCancellationRequested();
         var parentDirectory = _fileSystem.GetDirectoryName(currentDirectory);
-        if (parentDirectory == null) yield break;
+        if (parentDirectory == null)
+        {
+            yield break;
+        }
 
         if (child == null)
         {
@@ -31,8 +35,9 @@ internal class ParentSegmentStrategy : ISegmentStrategy
             yield break;
         }
 
-        foreach (var result in child.Evaluate(parentDirectory))
+        foreach (var result in child.Evaluate(parentDirectory, token))
         {
+            token.ThrowIfCancellationRequested();
             yield return result;
         }
     }

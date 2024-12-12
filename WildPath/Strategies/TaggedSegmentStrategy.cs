@@ -25,12 +25,14 @@ internal class TaggedSegmentStrategy : ISegmentStrategy
         return true;
     }
 
-    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
+    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
     {
         var directories = _fileSystem.EnumerateDirectories(currentDirectory);
 
         foreach (var directory in directories)
         {
+            token.ThrowIfCancellationRequested();
+
             var markerPath = Path.Combine(directory, _marker);
 
             // Check if the marker exists
@@ -45,7 +47,7 @@ internal class TaggedSegmentStrategy : ISegmentStrategy
             }
             else
             {
-                foreach (var subDir in child.Evaluate(directory))
+                foreach (var subDir in child.Evaluate(directory, token))
                 {
                     yield return subDir;
                 }

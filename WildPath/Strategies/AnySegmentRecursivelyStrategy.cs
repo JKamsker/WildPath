@@ -15,19 +15,22 @@ internal class AnySegmentRecursivelyStrategy : ISegmentStrategy
     
     public bool Matches(string path) => true;
 
-    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child)
+    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
     {
         var directories = EnumerateAllSubdirectories(currentDirectory);
         foreach (var directory in directories)
         {
+            token.ThrowIfCancellationRequested();
+
             if (child == null)
             {
                 yield return directory;
                 continue;
             }
 
-            foreach (var subDir in child.Evaluate(directory))
+            foreach (var subDir in child.Evaluate(directory, token))
             {
+                token.ThrowIfCancellationRequested();
                 yield return subDir;
             }
         }

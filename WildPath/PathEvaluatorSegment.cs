@@ -29,9 +29,10 @@ internal class PathEvaluatorSegment : IPathEvaluatorSegment
 
     public bool Matches(string path) => _strategy.Matches(path);
 
-    public IEnumerable<string> Evaluate(string currentDirectory)
+    public IEnumerable<string> Evaluate(string currentDirectory, CancellationToken token = default)
     {
-        return _strategy.Evaluate(currentDirectory, _child);
+
+        return _strategy.Evaluate(currentDirectory, _child, token);
     }
 
     public IEnumerable<PathEvaluatorSegment> EnumerateChildren()
