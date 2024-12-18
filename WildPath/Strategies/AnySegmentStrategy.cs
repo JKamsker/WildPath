@@ -2,42 +2,47 @@
 
 namespace WildPath.Strategies;
 
-internal class AnySegmentStrategy : ISegmentStrategy
+internal class AnySegmentStrategy : SegmentStrategyBase, ISegmentStrategy
 {
     private readonly string _segment;
     private readonly IFileSystem _fileSystem;
 
     public AnySegmentStrategy(string segment, IFileSystem fileSystem)
+        : base(fileSystem)
     {
         _segment = segment;
         _fileSystem = fileSystem;
     }
 
-    public bool Matches(string path) => true;
+    public override bool Matches(string path) => true;
 
-    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
-    {
-        foreach (var directory in _fileSystem.EnumerateDirectories(currentDirectory))
-        {
-            if (token.IsCancellationRequested)
-            {
-                yield break;
-            }
-            if (child == null)
-            {
-                yield return directory;
-                continue;
-            }
+    protected override IEnumerable<string> GetSource(string currentDirectory)
+        => _fileSystem.EnumerateDirectories(currentDirectory);
 
-            foreach (var subDir in child.Evaluate(directory, token))
-            {
-                if (token.IsCancellationRequested)
-                {
-                    yield break;
-                }
-                
-                yield return subDir;
-            }
-        }
-    }
+    // public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
+    // {
+    //     foreach (var directory in _fileSystem.EnumerateDirectories(currentDirectory))
+    //     {
+    //         if (token.IsCancellationRequested)
+    //         {
+    //             yield break;
+    //         }
+    //
+    //         if (child == null)
+    //         {
+    //             yield return directory;
+    //             continue;
+    //         }
+    //
+    //         foreach (var subDir in child.Evaluate(directory, token))
+    //         {
+    //             if (token.IsCancellationRequested)
+    //             {
+    //                 yield break;
+    //             }
+    //
+    //             yield return subDir;
+    //         }
+    //     }
+    // }
 }

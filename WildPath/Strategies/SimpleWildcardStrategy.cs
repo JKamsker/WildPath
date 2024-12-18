@@ -7,7 +7,7 @@ namespace WildPath.Strategies;
 /// "*World" or "Hello*" or "*llo*" will match "Hello World"
 /// Uses no regex, just string operations
 /// </summary>
-internal class SimpleWildcardStrategy : ISegmentStrategy
+internal class SimpleWildcardStrategy : SegmentStrategyBase, ISegmentStrategy
 {
     private readonly string _segment;
     private readonly IFileSystem _fileSystem;
@@ -21,10 +21,6 @@ internal class SimpleWildcardStrategy : ISegmentStrategy
     public bool IsValid { get; }
 
 
-    private SimpleWildcardStrategy()
-    {
-    }
-
     /// <summary>
     /// Dumb constructor without any logic
     /// </summary>
@@ -36,7 +32,7 @@ internal class SimpleWildcardStrategy : ISegmentStrategy
         int count,
         bool startsWithWildcard,
         bool endsWithWildcard
-    )
+    ) : base(fileSystem)
     {
         _segment = segment;
         _fileSystem = fileSystem;
@@ -52,51 +48,57 @@ internal class SimpleWildcardStrategy : ISegmentStrategy
     }
 
 
-    public bool Matches(string path)
+    public override bool Matches(string path)
     {
-        // var fileName = _fileSystem.GetFileName(path) ?? string.Empty;
-        // if(string.IsNullOrEmpty(fileName))
-        // {
-        //     return false;
-        // }
-        
-        return _matcher(path);
-    }
-
-    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
-    {
-        var directories = _fileSystem
-            .EnumerateFileSystemEntries(currentDirectory);
-
-        foreach (var directory in directories)
+        var fileName = _fileSystem.GetFileName(path) ?? string.Empty;
+        if (string.IsNullOrEmpty(fileName))
         {
-            if (token.IsCancellationRequested)
-            {
-                yield break;
-            }
-
-            if (!Matches(_fileSystem.GetFileName(directory) ?? string.Empty))
-            {
-                continue;
-            }
-
-            if (child == null)
-            {
-                yield return directory;
-                continue;
-            }
-
-            foreach (var subDir in child.Evaluate(directory, token))
-            {
-                if (token.IsCancellationRequested)
-                {
-                    yield break;
-                }
-                
-                yield return subDir;
-            }
+            return false;
         }
+
+        return _matcher(fileName);
     }
+
+    protected override IEnumerable<string> GetSource(string currentDirectory)
+    {
+        return _fileSystem
+            .EnumerateFileSystemEntries(currentDirectory);
+    }
+
+    // public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
+    // {
+    //     var directories = _fileSystem
+    //         .EnumerateFileSystemEntries(currentDirectory);
+    //
+    //     foreach (var directory in directories)
+    //     {
+    //         if (token.IsCancellationRequested)
+    //         {
+    //             yield break;
+    //         }
+    //
+    //         if (!Matches(_fileSystem.GetFileName(directory) ?? string.Empty))
+    //         {
+    //             continue;
+    //         }
+    //
+    //         if (child == null)
+    //         {
+    //             yield return directory;
+    //             continue;
+    //         }
+    //
+    //         foreach (var subDir in child.Evaluate(directory, token))
+    //         {
+    //             if (token.IsCancellationRequested)
+    //             {
+    //                 yield break;
+    //             }
+    //             
+    //             yield return subDir;
+    //         }
+    //     }
+    // }
 
     public static bool TryCreate(string segment, IFileSystem fileSystem, out ISegmentStrategy strategy)
     {
@@ -129,7 +131,7 @@ internal class SimpleWildcardStrategy : ISegmentStrategy
             startsWithWildcard,
             endsWithWildcard
         );
-        
+
         strategy = result;
         return result.IsValid;
     }

@@ -27,6 +27,7 @@ internal static class StringExtensions
         return false;
     }
 
+    
 #if NET48 || NETSTANDARD2_0
 
     public static bool Contains(this string source, string value, StringComparison comparisonType)
@@ -64,6 +65,7 @@ internal static class StringExtensions
         {
             throw new ArgumentNullException(nameof(values));
         }
+
         if (values.Length == 0)
         {
             return string.Empty;
@@ -76,17 +78,22 @@ internal static class StringExtensions
             result.Append(separator);
             result.Append(values[i]);
         }
+
         return result.ToString();
     }
 
     // Splits a string into a maximum number of substrings based on a specified delimiting string and, optionally, options.
-    public static string[] Split(this string source, char separator, int count, StringSplitOptions options = StringSplitOptions.None)
+    public static string[] Split(
+        this string source,
+        char separator,
+        int count,
+        StringSplitOptions options = StringSplitOptions.None
+    )
     {
         return source.Split(new[] { separator }, count, options);
     }
 
 #else
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ConvertToString(this ReadOnlySpan<char> memory)
     {

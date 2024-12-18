@@ -2,7 +2,8 @@
 
 namespace WildPath.Strategies;
 
-internal class ExactMatchSegmentStrategy : ISegmentStrategy, IParentSegmentAware
+internal class ExactMatchSegmentStrategy
+    : SegmentStrategyBase, ISegmentStrategy, IParentSegmentAware
 {
     private readonly string _segment;
     private readonly IFileSystem _fileSystem;
@@ -17,55 +18,67 @@ internal class ExactMatchSegmentStrategy : ISegmentStrategy, IParentSegmentAware
     }
 
     public ExactMatchSegmentStrategy(string segment, IFileSystem fileSystem)
+        : base(fileSystem)
     {
         _segment = segment;
         _fileSystem = fileSystem;
     }
 
-    public bool Matches(string path) => string.Equals(_segment, path, StringComparison.OrdinalIgnoreCase);
-
-    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
+    public override bool Matches(string path)
     {
-        IEnumerable<string> directories = Array.Empty<string>();
+        var fileName = _fileSystem.GetFileName(path) ?? string.Empty;
+        if (string.IsNullOrEmpty(fileName))
+        {
+            return false;
+        }
+
+        return string.Equals(_segment, fileName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    protected override IEnumerable<string> GetSource(string currentDirectory)
+    {
         if (_isRootSegment)
         {
-            directories = new[] { _segment };
-        }
-        else
-        {
-            directories = _fileSystem
-                .EnumerateFileSystemEntries(currentDirectory);
+            return new[] { _segment };
         }
 
-        foreach (var directory in directories)
-        {
-            if (token.IsCancellationRequested)
-            {
-                yield break;
-            }
-
-            if (!Matches(_fileSystem.GetFileName(directory) ?? string.Empty))
-            {
-                continue;
-            }
-
-            if (child == null)
-            {
-                yield return directory;
-                continue;
-            }
-
-            foreach (var subDir in child.Evaluate(directory, token))
-            {
-                if (token.IsCancellationRequested)
-                {
-                    yield break;
-                }
-
-                yield return subDir;
-            }
-        }
+        return _fileSystem
+            .EnumerateFileSystemEntries(currentDirectory);
     }
+
+    // public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
+    // {
+    //     var directories = GetSource(currentDirectory);
+    //
+    //     foreach (var directory in directories)
+    //     {
+    //         if (token.IsCancellationRequested)
+    //         {
+    //             yield break;
+    //         }
+    //
+    //         if (!Matches(directory))
+    //         {
+    //             continue;
+    //         }
+    //
+    //         if (child == null)
+    //         {
+    //             yield return directory;
+    //             continue;
+    //         }
+    //
+    //         foreach (var subDir in child.Evaluate(directory, token))
+    //         {
+    //             if (token.IsCancellationRequested)
+    //             {
+    //                 yield break;
+    //             }
+    //
+    //             yield return subDir;
+    //         }
+    //     }
+    // }
 
     private void UpdateParentSegment(IPathEvaluatorSegment value)
     {

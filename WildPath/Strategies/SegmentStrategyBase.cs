@@ -20,6 +20,11 @@ public abstract class SegmentStrategyBase : ISegmentStrategy
         CancellationToken token = default
     )
     {
+        if(token.IsCancellationRequested)
+        {
+            yield break;
+        }
+        
         var fsEntries = GetSource(currentDirectory);
 
         foreach (var fsEntry in fsEntries)

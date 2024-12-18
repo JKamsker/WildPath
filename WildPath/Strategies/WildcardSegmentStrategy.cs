@@ -4,13 +4,14 @@ using WildPath.Abstractions;
 
 namespace WildPath.Strategies;
 
-internal class WildcardSegmentStrategy : ISegmentStrategy
+internal class WildcardSegmentStrategy : SegmentStrategyBase, ISegmentStrategy
 {
     private readonly string _pattern;
     private readonly IFileSystem _fileSystem;
     private readonly Regex _regex;
 
-    public WildcardSegmentStrategy(string segment, IFileSystem fileSystem)
+    public WildcardSegmentStrategy(string segment, IFileSystem fileSystem) 
+        : base(fileSystem)
     {
         _pattern = "^" + Regex.Escape(segment).Replace("\\*", ".*") + "$";
         _regex = new Regex(_pattern, RegexOptions.Compiled);
@@ -18,41 +19,53 @@ internal class WildcardSegmentStrategy : ISegmentStrategy
         _fileSystem = fileSystem;
     }
 
-    public bool Matches(string path) => _regex.IsMatch(path);
-
-    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
+    public override bool Matches(string path)
     {
-        var directories = _fileSystem
-            .EnumerateFileSystemEntries(currentDirectory);
-
-        foreach (var directory in directories)
+        var fileName = _fileSystem.GetFileName(path) ?? string.Empty;
+        if (string.IsNullOrEmpty(fileName))
         {
-            if (token.IsCancellationRequested)
-            {
-                yield break;
-            }
-            
-            if (!Matches(_fileSystem.GetFileName(directory) ?? string.Empty))
-            {
-                continue;
-            }
-
-            if (child == null)
-            {
-                yield return directory;
-            }
-            else
-            {
-                foreach (var subDir in child.Evaluate(directory, token))
-                {
-                    if (token.IsCancellationRequested)
-                    {
-                        yield break;
-                    }
-
-                    yield return subDir;
-                }
-            }
+            return false;
         }
+        
+        return _regex.IsMatch(fileName);
     }
+
+    protected override IEnumerable<string> GetSource(string currentDirectory) 
+        => _fileSystem.EnumerateFileSystemEntries(currentDirectory);
+
+    // public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
+    // {
+    //     var directories = _fileSystem
+    //         .EnumerateFileSystemEntries(currentDirectory);
+    //
+    //     foreach (var directory in directories)
+    //     {
+    //         if (token.IsCancellationRequested)
+    //         {
+    //             yield break;
+    //         }
+    //         
+    //         if (!Matches(directory))
+    //         {
+    //             continue;
+    //         }
+    //
+    //         if (child == null)
+    //         {
+    //             yield return directory;
+    //         }
+    //         else
+    //         {
+    //             foreach (var subDir in child.Evaluate(directory, token))
+    //             {
+    //                 if (token.IsCancellationRequested)
+    //                 {
+    //                     yield break;
+    //                 }
+    //
+    //                 yield return subDir;
+    //             }
+    //         }
+    //     }
+    // }
 }

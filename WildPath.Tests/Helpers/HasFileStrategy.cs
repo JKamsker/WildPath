@@ -21,14 +21,16 @@ public class HasFileStrategy : ICustomStrategy
             throw new ArgumentException("Expected 1 parameter.");
         }
 
-        Marker = call.Parameters[0];
+        Marker = call.TryGetParameter("marker", out var marker) 
+            ? marker 
+            : call.GetUnnamedParameter(0);
     }
 
     public bool Matches(string path)
     {
         return true;
     }
-    
+
     public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
     {
         var directories = _fileSystem.EnumerateDirectories(currentDirectory);
@@ -38,7 +40,7 @@ public class HasFileStrategy : ICustomStrategy
             token.ThrowIfCancellationRequested();
 
             var markerPath = _fileSystem.Combine(directory, Marker);
-            
+
             // Check if the marker exists
             if (!_fileSystem.FileExists(markerPath))
             {
