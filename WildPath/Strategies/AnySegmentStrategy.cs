@@ -19,8 +19,10 @@ internal class AnySegmentStrategy : ISegmentStrategy
     {
         foreach (var directory in _fileSystem.EnumerateDirectories(currentDirectory))
         {
-            token.ThrowIfCancellationRequested();
-
+            if (token.IsCancellationRequested)
+            {
+                yield break;
+            }
             if (child == null)
             {
                 yield return directory;
@@ -29,7 +31,11 @@ internal class AnySegmentStrategy : ISegmentStrategy
 
             foreach (var subDir in child.Evaluate(directory, token))
             {
-                token.ThrowIfCancellationRequested();
+                if (token.IsCancellationRequested)
+                {
+                    yield break;
+                }
+                
                 yield return subDir;
             }
         }

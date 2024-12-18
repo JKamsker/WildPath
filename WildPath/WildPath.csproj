@@ -13,7 +13,7 @@
 		<!-- Basic metadata -->
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>WildPath</PackageId>
-		<Version>0.0.5</Version>
+		<Version>0.0.6</Version>
 		<Authors>Jonas Kamsker</Authors>
 		<Company>JKamsker</Company>
 		<Product>WildPath</Product>
@@ -48,6 +48,10 @@
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
 	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Strategies\Custom\" />
 	</ItemGroup>
 
 </Project>

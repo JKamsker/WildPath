@@ -37,14 +37,16 @@ internal class ExactMatchSegmentStrategy : ISegmentStrategy, IParentSegmentAware
                 .EnumerateFileSystemEntries(currentDirectory);
         }
 
-        directories = directories
-            .Where(d => Matches(_fileSystem.GetFileName(d) ?? string.Empty));
-
         foreach (var directory in directories)
         {
             if (token.IsCancellationRequested)
             {
                 yield break;
+            }
+
+            if (!Matches(_fileSystem.GetFileName(directory) ?? string.Empty))
+            {
+                continue;
             }
 
             if (child == null)
@@ -59,6 +61,7 @@ internal class ExactMatchSegmentStrategy : ISegmentStrategy, IParentSegmentAware
                 {
                     yield break;
                 }
+
                 yield return subDir;
             }
         }
@@ -75,8 +78,8 @@ internal class ExactMatchSegmentStrategy : ISegmentStrategy, IParentSegmentAware
         var isFirst = ((IParentSegmentAware)this).ParentSegment?.IsFirst ?? false;
 
         return isFirst
-            && segment.Length == 2
-            && segment[1] == ':'
-            && segment[0] >= 'A' && segment[0] <= 'Z';
+               && segment.Length == 2
+               && segment[1] == ':'
+               && segment[0] >= 'A' && segment[0] <= 'Z';
     }
 }

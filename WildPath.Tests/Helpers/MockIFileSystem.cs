@@ -10,16 +10,23 @@ public class MockFileSystem : IFileSystem
     public char DirectorySeparatorChar { get; }
     public string CurrentDirectory { get; }
 
+    public MockFileSystem()
+    {
+        _directories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        DirectorySeparatorChar = Path.DirectorySeparatorChar;
+        CurrentDirectory = DirectorySeparatorChar.ToString();
+    }
+
     public MockFileSystem(
         string currentDirectory,
-        IEnumerable<string> existingDirectories,
+        IEnumerable<string> fsEntries,
         char? directorySeparatorChar = null
     )
     {
         // Normalize and store all directories in a HashSet for O(1) lookups.
         // Ensuring all directories do not end with a trailing slash for consistency.
         _directories = new HashSet<string>(
-            existingDirectories.Select(d => NormalizeDirectoryPath(d)),
+            fsEntries.Select(d => NormalizeDirectoryPath(d)),
             StringComparer.OrdinalIgnoreCase
         );
 

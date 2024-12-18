@@ -20,7 +20,10 @@ internal class AnySegmentRecursivelyStrategy : ISegmentStrategy
         var directories = EnumerateAllSubdirectories(currentDirectory);
         foreach (var directory in directories)
         {
-            token.ThrowIfCancellationRequested();
+            if (token.IsCancellationRequested)
+            {
+                yield break;
+            }
 
             if (child == null)
             {
@@ -30,7 +33,11 @@ internal class AnySegmentRecursivelyStrategy : ISegmentStrategy
 
             foreach (var subDir in child.Evaluate(directory, token))
             {
-                token.ThrowIfCancellationRequested();
+                if (token.IsCancellationRequested)
+                {
+                    yield break;
+                }
+                
                 yield return subDir;
             }
         }

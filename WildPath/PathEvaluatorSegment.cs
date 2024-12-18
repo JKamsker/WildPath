@@ -1,5 +1,6 @@
 using WildPath.Abstractions;
 using WildPath.Extensions;
+using WildPath.Internals;
 using WildPath.Strategies;
 
 namespace WildPath;
@@ -14,24 +15,29 @@ internal class PathEvaluatorSegment : IPathEvaluatorSegment
 
     public bool IsFirst { get; }
 
-    private PathEvaluatorSegment(string segment, PathEvaluatorSegment? child, IFileSystem fileSystem, bool isFirst)
+    private PathEvaluatorSegment(
+        string segment,
+        PathEvaluatorSegment? child,
+        IFileSystem fileSystem,
+        bool isFirst,
+        IStrategyFactory? strategyFactory = null
+    )
     {
         _child = child;
         _fileSystem = fileSystem;
-        
+
         RawToken = segment;
         IsFirst = isFirst;
 
-        _strategy = new StrategyFactory(fileSystem)
+        _strategy = (strategyFactory ?? StrategyFactory.Default)
             .Create(segment)
             .Initialize(this);
     }
 
-    public bool Matches(string path) => _strategy.Matches(path);
+    // public bool Matches(string path) => _strategy.Matches(path);
 
     public IEnumerable<string> Evaluate(string currentDirectory, CancellationToken token = default)
     {
-
         return _strategy.Evaluate(currentDirectory, _child, token);
     }
 
@@ -45,13 +51,30 @@ internal class PathEvaluatorSegment : IPathEvaluatorSegment
         }
     }
 
-    public static PathEvaluatorSegment? FromExpressions(string[] path, IFileSystem fileSystem)
+    public static PathEvaluatorSegment? FromExpressions(
+        string[] path,
+        IFileSystem? fileSystem = null,
+        IStrategyFactory? strategyFactory = null
+    )
     {
+        fileSystem ??= RealFileSystem.Instance;
+        strategyFactory ??= new CompositeStrategyFactory(
+            new StrategyFactory(fileSystem),
+            new DefaultStrategyFactory(fileSystem)
+        );
+
         PathEvaluatorSegment? currentSegment = null;
         foreach (var (element, i) in path.Reverse().Select((x, i) => (x, i)))
         {
             var isFirst = i == path.Length - 1;
-            currentSegment = new PathEvaluatorSegment(element, currentSegment, fileSystem, isFirst);
+            currentSegment = new PathEvaluatorSegment
+            (
+                segment: element, 
+                child: currentSegment, 
+                fileSystem: fileSystem,
+                isFirst: isFirst, 
+                strategyFactory: strategyFactory
+            );
         }
 
         return currentSegment;

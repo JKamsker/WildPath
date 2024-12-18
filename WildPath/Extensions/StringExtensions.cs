@@ -34,7 +34,7 @@ internal static class StringExtensions
         return source.IndexOf(value, comparisonType) >= 0;
     }
 
-    // EndsWith and StartsWith 
+    // EndsWith and StartsWith
     public static bool EndsWith(this string source, char value)
     {
         return source[^1] == value;
@@ -44,7 +44,6 @@ internal static class StringExtensions
     {
         return source[0] == value;
     }
-    
 
     public static unsafe string ConvertToString(this ReadOnlySpan<char> memory)
     {
@@ -80,7 +79,14 @@ internal static class StringExtensions
         return result.ToString();
     }
 
+    // Splits a string into a maximum number of substrings based on a specified delimiting string and, optionally, options.
+    public static string[] Split(this string source, char separator, int count, StringSplitOptions options = StringSplitOptions.None)
+    {
+        return source.Split(new[] { separator }, count, options);
+    }
+
 #else
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ConvertToString(this ReadOnlySpan<char> memory)
     {
@@ -91,5 +97,6 @@ internal static class StringExtensions
     {
         return string.Join(separator, values);
     }
+
 #endif
 }

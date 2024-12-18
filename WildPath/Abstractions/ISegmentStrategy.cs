@@ -1,5 +1,4 @@
-﻿
-namespace WildPath.Abstractions;
+﻿namespace WildPath.Abstractions;
 
 public interface ISegmentStrategy
 {

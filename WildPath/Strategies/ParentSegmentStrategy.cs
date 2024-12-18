@@ -22,7 +22,11 @@ internal class ParentSegmentStrategy : ISegmentStrategy
 
     public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
     {
-        token.ThrowIfCancellationRequested();
+        if (token.IsCancellationRequested)
+        {
+            yield break;
+        }
+        
         var parentDirectory = _fileSystem.GetDirectoryName(currentDirectory);
         if (parentDirectory == null)
         {
@@ -37,7 +41,11 @@ internal class ParentSegmentStrategy : ISegmentStrategy
 
         foreach (var result in child.Evaluate(parentDirectory, token))
         {
-            token.ThrowIfCancellationRequested();
+            if (token.IsCancellationRequested)
+            {
+                yield break;
+            }
+            
             yield return result;
         }
     }

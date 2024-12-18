@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-
 using WildPath.Abstractions;
 using WildPath.Extensions;
 
@@ -8,54 +7,61 @@ namespace WildPath.Strategies;
 /// <summary>
 /// Does parent directories contain a marker file?
 /// </summary>
-internal class TaggedSegmentStrategy : ISegmentStrategy
+internal class TaggedSegmentStrategy(string marker, IFileSystem fileSystem)
+    : SegmentStrategyBase(fileSystem), ISegmentStrategy
 {
-    private readonly string _marker;
-    private readonly IFileSystem _fileSystem;
+    private readonly string _marker = marker;
+    private readonly IFileSystem _fileSystem = fileSystem;
 
-    public TaggedSegmentStrategy(string marker, IFileSystem fileSystem)
+    public override bool Matches(string path)
     {
-        _marker = marker;
-        _fileSystem = fileSystem;
+        var markerPath = _fileSystem.Combine(path, _marker);
+
+        // Check if the marker exists
+        return _fileSystem.EntryExists(markerPath);
     }
 
-    public bool Matches(string path)
-    {
-        // Always true as the marker is the deciding factor, not the folder name itself.
-        return true;
-    }
+    // public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
+    // {
+    //     var directories = _fileSystem.EnumerateDirectories(currentDirectory);
+    //
+    //     foreach (var directory in directories)
+    //     {
+    //         if (token.IsCancellationRequested)
+    //         {
+    //             yield break;
+    //         }
+    //
+    //         var markerPath = _fileSystem.Combine(directory, _marker);
+    //
+    //         // Check if the marker exists
+    //         if (!_fileSystem.EntryExists(markerPath))
+    //         {
+    //             continue;
+    //         }
+    //
+    //         if (child == null)
+    //         {
+    //             yield return directory;
+    //             continue;
+    //         }
+    //
+    //         foreach (var subDir in child.Evaluate(directory, token))
+    //         {
+    //             if (token.IsCancellationRequested)
+    //             {
+    //                 yield break;
+    //             }
+    //
+    //             yield return subDir;
+    //         }
+    //     }
+    // }
 
-    public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
-    {
-        var directories = _fileSystem.EnumerateDirectories(currentDirectory);
+    protected override IEnumerable<string> GetSource(string currentDirectory)
+        => _fileSystem.EnumerateDirectories(currentDirectory);
 
-        foreach (var directory in directories)
-        {
-            token.ThrowIfCancellationRequested();
-
-            var markerPath = Path.Combine(directory, _marker);
-
-            // Check if the marker exists
-            if (!_fileSystem.EntryExists(markerPath))
-            {
-                continue;
-            }
-
-            if (child == null)
-            {
-                yield return directory;
-            }
-            else
-            {
-                foreach (var subDir in child.Evaluate(directory, token))
-                {
-                    yield return subDir;
-                }
-            }
-        }
-    }
-
-    public static bool TryCreate(string segment, IFileSystem fileSystem, [NotNullWhen(true)]out ISegmentStrategy? strategy)
+    public static bool TryCreate(string segment, IFileSystem fileSystem, [NotNullWhen(true)] out ISegmentStrategy? strategy)
     {
         if (segment.TryTrimStartAndEnd(":tagged(", "):", out var marker))
         {

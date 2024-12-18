@@ -1,19 +1,31 @@
-﻿using System.Net;
-
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using WildPath.Abstractions;
+using WildPath.Internals;
 
 namespace WildPath.Strategies;
 
-internal class StrategyFactory
+internal class StrategyFactory : IStrategyFactory
 {
     private readonly IFileSystem _fileSystem;
+
+    public static readonly IStrategyFactory Default = new CompositeStrategyFactory(
+        new StrategyFactory(RealFileSystem.Instance),
+        new DefaultStrategyFactory(RealFileSystem.Instance)
+    );
 
     public StrategyFactory(IFileSystem fileSystem)
     {
         _fileSystem = fileSystem;
     }
 
-    public ISegmentStrategy Create(string segment) => segment switch
+    public bool TryCreate(string segment, [NotNullWhen(true)] out ISegmentStrategy? strategy)
+    {
+        strategy = Create(segment);
+        return strategy != null;
+    }
+
+    public ISegmentStrategy? Create(string segment) => segment switch
     {
         ".." => new ParentSegmentStrategy(segment, _fileSystem),
         "..." => new ParentsSegmentStrategy(segment, _fileSystem),
@@ -22,7 +34,7 @@ internal class StrategyFactory
         _ => CreateStrategy(segment)
     };
 
-    private ISegmentStrategy CreateStrategy(string segment)
+    private ISegmentStrategy? CreateStrategy(string segment)
     {
         if (TryCreateWildcardStrategy(segment, out var strategy))
         {
@@ -34,8 +46,7 @@ internal class StrategyFactory
             return strategy;
         }
 
-
-        return new ExactMatchSegmentStrategy(segment, _fileSystem);
+        return null;
     }
 
     private bool TryCreateWildcardStrategy(string segment, out ISegmentStrategy strategy)
