@@ -18,8 +18,14 @@ internal class RealFileSystem : IFileSystem
             path += DirectorySeparatorChar;
         }
 
-
-        return Directory.EnumerateDirectories(path);
+        try
+        {
+            return Directory.EnumerateDirectories(path);
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return Enumerable.Empty<string>();
+        }
     }
 
     public IEnumerable<string> EnumerateFileSystemEntries(string path)
@@ -30,7 +36,14 @@ internal class RealFileSystem : IFileSystem
             path += DirectorySeparatorChar;
         }
 
-        return Directory.EnumerateFileSystemEntries(path);
+        try
+        {
+            return Directory.EnumerateFileSystemEntries(path);
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return Enumerable.Empty<string>();
+        }
     }
 
     public string? GetDirectoryName(string path) => Path.GetDirectoryName(path);

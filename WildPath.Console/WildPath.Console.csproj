@@ -2,10 +2,17 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFrameworks>net8.0;net4.8</TargetFrameworks>
+        <TargetFramework>net8.0</TargetFramework>
+<!--        <TargetFrameworks>net8.0;net4.8</TargetFrameworks>-->
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Version>0.0.2</Version>
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>wpcli</ToolCommandName>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,6 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="JKToolKit.Spectre.AutoCompletion" Version="0.0.9" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
       <PackageReference Include="Spectre.Console" Version="0.49.1" />
       <PackageReference Include="Spectre.Console.Cli" Version="0.49.1" />

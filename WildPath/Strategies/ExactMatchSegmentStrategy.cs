@@ -26,6 +26,11 @@ internal class ExactMatchSegmentStrategy
 
     public override bool Matches(string path)
     {
+        if(_segment == ".")
+        {
+            return true;
+        }
+        
         var fileName = _fileSystem.GetFileName(path) ?? string.Empty;
         if (string.IsNullOrEmpty(fileName))
         {
@@ -40,6 +45,11 @@ internal class ExactMatchSegmentStrategy
         if (_isRootSegment)
         {
             return new[] { _segment };
+        }
+        
+        if(_segment == ".")
+        {
+            return new[] { currentDirectory };
         }
 
         return _fileSystem

@@ -164,9 +164,9 @@ public static class PathResolverExtensions
     /// <param name="resolver">The path resolver.</param>
     /// <param name="path">The path expression to resolve.</param>
     /// <returns>All paths that match the expression.</returns>
-    public static IEnumerable<string> ResolveAll(this PathResolver resolver, string path)
+    public static IEnumerable<string> ResolveAll(this PathResolver resolver, string path, CancellationToken token = default)
     {
-        return resolver.EvaluateAll(path);
+        return resolver.EvaluateAll(path, token);
     }
 
     /// <summary>
