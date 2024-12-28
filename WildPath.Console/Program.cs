@@ -1,5 +1,7 @@
 ﻿using JKToolKit.Spectre.AutoCompletion.Completion;
 using JKToolKit.Spectre.AutoCompletion.Integrations;
+using Spectre.Console.Cli;
+using WildPath.Console.Commands.Tui;
 using WildPath.Console.CustomStrategies;
 using WildPath.Strategies.Custom;
 
@@ -25,19 +27,32 @@ class Program
         //     "C:\\Users\\W31rd0"
         // };
 
-        LogCommand(args);
+        // LogCommand(args);
+
+        if (args?.Length is null or 0)
+        {
+            args = new string[]
+            {
+                "tui"
+            };
+        }
 
         var consoleApp = new Spectre.Console.Cli.CommandApp();
         consoleApp.Configure(config =>
         {
             config.AddAutoCompletion(conf => conf.AddPowershell(pconf =>
             {
-                pconf.Aliases.Add("wpls", ["ls"]);
+                pconf.WithAlias("wpls", ["ls"]);
             }));
 
             // ls
             config.AddCommand<LsCommand>("ls")
                 .WithDescription("List files and directories in the current directory.");
+            
+            config.AddCommand<TuiCommand>("tui")
+                .WithDescription("Start the WildPath shell.");
+
+            config.PropagateExceptions();
         });
 
 
@@ -82,53 +97,5 @@ class Program
         Console.WriteLine(path);
     }
 
-    private static async Task Demo()
-    {
-        AnsiConsole.Write(new FigletText("WildPath Shell").Centered().Color(Color.Green));
-        AnsiConsole.MarkupLine("[bold yellow]Type a path expression to evaluate, or type 'exit' to quit.[/]");
-
-        CancellationTokenSource cts = default;
-
-        // Listen to Ctrl+C and cancel the evaluation task if needed
-        Console.CancelKeyPress += (_, args) =>
-        {
-            if (cts is null || cts.IsCancellationRequested)
-            {
-                return;
-            }
-
-            args.Cancel = true;
-            cts?.Cancel();
-        };
-
-        while (true)
-        {
-            try
-            {
-                // Capture the user's input
-                string? input = AnsiConsole.Ask<string>("Type path expression:");
-                cts = TimeSpan.FromSeconds(1).ToCancellationTokenSource();
-
-                // End process
-                if (string.Equals(input.Trim(), "exit", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    cts.Cancel();
-                    break;
-                }
-
-
-                var resolved = PathResolver
-                    .ResolveAll(input, cts.Token)
-                    .Take(10);
-
-                foreach (var item in resolved)
-                {
-                    AnsiConsole.MarkupLine($"[green]Resolved:[/] {item}");
-                }
-            }
-            catch (OperationCanceledException e)
-            {
-            }
-        }
-    }
+   
 }
