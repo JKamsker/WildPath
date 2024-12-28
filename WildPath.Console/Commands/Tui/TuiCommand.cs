@@ -52,7 +52,7 @@ public class TuiCommand : AsyncCommand<TuiCommand.Settings>
             _ = resolver.ResolveAsync(s.Input, inputChangedCts.Token, path =>
             {
                 currentResults.Add(path);
-                table.UpdateCell(0, 1, string.join("\n", currentResults));
+                table.UpdateCell(0, 1, string.Join("\n", currentResults));
                 ctx.Refresh();
             });
         };
@@ -85,7 +85,7 @@ public class TuiCommand : AsyncCommand<TuiCommand.Settings>
 
     private void FinalizeInput(Table table, ConcurrentBag<string> results, LiveInputState state)
     {
-        table.AddRow(state.Input, string.join("\n", results));
+        table.AddRow(state.Input, string.Join("\n", results));
 
         table.UpdateCell(0, 0, string.Empty);
         table.UpdateCell(0, 1, string.Empty);

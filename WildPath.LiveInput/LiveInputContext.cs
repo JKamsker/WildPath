@@ -1,3 +1,4 @@
+using System;
 using Spectre.Console;
 
 namespace WildPath.LiveInput;
