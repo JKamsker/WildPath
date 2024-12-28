@@ -17,6 +17,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\WildPath\WildPath.csproj" />
+      <ProjectReference Include="..\WildPath.LiveInput\WildPath.LiveInput.csproj" />
     </ItemGroup>
 
     <ItemGroup>
