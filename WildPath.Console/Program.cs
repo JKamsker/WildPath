@@ -40,15 +40,12 @@ class Program
         var consoleApp = new Spectre.Console.Cli.CommandApp();
         consoleApp.Configure(config =>
         {
-            config.AddAutoCompletion(conf => conf.AddPowershell(pconf =>
-            {
-                pconf.WithAlias("wpls", ["ls"]);
-            }));
+            config.AddAutoCompletion(conf => conf.AddPowershell(pconf => { pconf.WithAlias("wpls", ["ls"]); }));
 
             // ls
             config.AddCommand<LsCommand>("ls")
                 .WithDescription("List files and directories in the current directory.");
-            
+
             config.AddCommand<TuiCommand>("tui")
                 .WithDescription("Start the WildPath shell.");
 
@@ -78,7 +75,7 @@ class Program
     {
         var resolver = PathResolver.Create(builder =>
         {
-            builder.WithCustomStrategy<HasFileStrategy>("hasFile");
+            builder.WithCustomStrategy<HasFileStrategy>("hasFile"); // :hasfile(param1):
             builder.WithCustomStrategy<HasDirectoryStrategy>("hasDirectory");
             builder.WithCustomStrategy<JsonFileStrategy>("hasJson");
         });
@@ -96,6 +93,4 @@ class Program
 
         Console.WriteLine(path);
     }
-
-   
 }

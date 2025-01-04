@@ -21,6 +21,7 @@
 
     <ItemGroup>
       <PackageReference Include="JKToolKit.Spectre.AutoCompletion" Version="0.0.9" />
+      <PackageReference Include="JKToolKit.Spectre.LiveInput" Version="0.0.1" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
       <PackageReference Include="Spectre.Console" Version="0.49.1" />
       <PackageReference Include="Spectre.Console.Cli" Version="0.49.1" />
