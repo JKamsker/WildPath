@@ -26,6 +26,8 @@ WildPath is a library for advanced file-system path resolution. It provides patt
   - Identify directories containing a marker file or subdirectory. (e.g., `a\:tagged(.marker)\b`).
 - **Composable Expressions**:
   - Combine strategies for complex path resolutions, such as `...\\**\\kxd`.
+- **Plugins**:
+  - Extend functionality with custom path resolvers and matchers.
 
 ---
 
@@ -80,6 +82,9 @@ var resolver = new PathResolver(currentDir);
 var result = resolver.Resolve(expression);
 Console.WriteLine(result); // Output: "C:\\Test\\SubDir1\\SubSubDir1"
 ```
+
+### **Plugins**
+[Here](https://github.com/JKamsker/WildPath/blob/master/WildPath.Console/Commands/Tui/TuiCommand.cs#L107) you can find an example of how to create and use a custom plugin.
 
 
 ---
