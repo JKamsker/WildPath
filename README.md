@@ -10,8 +10,11 @@
 
 WildPath is a library for advanced file-system path resolution. It provides pattern matching and dynamic path traversal capabilities through expressions, making it ideal for file searches and build systems.
 
+![ezgif-4-c156370953](https://github.com/user-attachments/assets/0cd519b7-71a6-4cfd-8655-75c87c1b7628)
+
 <!-- Restore float -->
 <div style="clear:both;"></div>
+
 
 
 ## **Features**
@@ -28,6 +31,9 @@ WildPath is a library for advanced file-system path resolution. It provides patt
   - Combine strategies for complex path resolutions, such as `...\\**\\kxd`.
 - **Plugins**:
   - Extend functionality with custom path resolvers and matchers.
+
+
+
 
 ---
 
