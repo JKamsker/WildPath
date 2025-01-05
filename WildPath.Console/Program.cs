@@ -1,10 +1,12 @@
-﻿using JKToolKit.Spectre.AutoCompletion.Completion;
+﻿using System.Runtime.CompilerServices;
+using JKToolKit.Spectre.AutoCompletion.Completion;
 using JKToolKit.Spectre.AutoCompletion.Integrations;
 using Spectre.Console.Cli;
 using WildPath.Console.Commands.Tui;
 using WildPath.Console.CustomStrategies;
 using WildPath.Strategies.Custom;
 
+[assembly: InternalsVisibleTo("WildPath.Tests")]
 namespace WildPath.Console;
 
 using System;
@@ -34,6 +36,7 @@ class Program
             args = new string[]
             {
                 "tui"
+                //, "-r" , "false"
             };
         }
 

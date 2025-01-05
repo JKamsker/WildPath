@@ -23,6 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\WildPath.Console\WildPath.Console.csproj"  Condition=" '$(TargetFramework)' == 'net8.0' " />
       <ProjectReference Include="..\WildPath\WildPath.csproj" />
     </ItemGroup>
 

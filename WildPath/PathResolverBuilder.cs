@@ -10,9 +10,16 @@ public class PathResolverBuilder
     private IFileSystem? _fileSystem;
     private string? _currentDir;
     private Dictionary<string, Type> _strategies = new();
+    private char _separator = System.IO.Path.DirectorySeparatorChar;
 
     public PathResolverBuilder()
     {
+    }
+    
+    public PathResolverBuilder WithPathSeparator(char separator)
+    {
+        _separator = separator;
+        return this;
     }
 
     public PathResolverBuilder WithFileSystem(IFileSystem fileSystem)
@@ -60,6 +67,9 @@ public class PathResolverBuilder
             currentDir: _currentDir,
             fileSystem: fileSystem,
             strategyFactory: factory
-        );
+        )
+        {
+            DirectorySeparatorChar = _separator
+        };
     }
 }

@@ -1,8 +1,10 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using JKToolKit.Spectre.LiveInput;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using WildPath.Console.CustomStrategies;
+using WildPath.Console.Utils;
 
 namespace WildPath.Console.Commands.Tui;
 
@@ -10,10 +12,23 @@ public class TuiCommand : AsyncCommand<TuiCommand.Settings>
 {
     public class Settings : CommandSettings
     {
+        // Current Directory
+        [CommandOption("-C|--current-directory")]
+        public string CurrentDirectory { get; set; } = System.IO.Directory.GetCurrentDirectory();
+
+        // Custom directory separator
+        [CommandOption("-s|--separator")] public char Separator { get; set; } = System.IO.Path.DirectorySeparatorChar;
+
+        // Make relative path
+        [CommandOption("-r|--relative")] public bool? MakeRelative { get; set; } //= true;
     }
+
+    private Settings? _settings;
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
+        _settings = settings;
+
         var cancellationToken = CancellationTokenFactory.FromConsoleCancelKeyPress();
 
         var table = CreateTable();
@@ -41,7 +56,6 @@ public class TuiCommand : AsyncCommand<TuiCommand.Settings>
         CancellationToken cancellationToken
     )
     {
-        var resolver = new PatternResolver();
         var currentResults = new ConcurrentBag<string>();
         var inputChangedCts = new CancellationTokenSource();
 
@@ -49,7 +63,7 @@ public class TuiCommand : AsyncCommand<TuiCommand.Settings>
         {
             ResetOnInputChanged(ref inputChangedCts, table, currentResults, s.Input);
 
-            _ = resolver.ResolveAsync(s.Input, inputChangedCts.Token, path =>
+            _ = ResolvePatternAsync(s.Input, inputChangedCts.Token, path =>
             {
                 currentResults.Add(path);
                 table.UpdateCell(0, 1, string.Join("\n", currentResults));
@@ -93,19 +107,18 @@ public class TuiCommand : AsyncCommand<TuiCommand.Settings>
         results.Clear();
         state.Reset();
     }
-}
 
-// Refactored PatternResolver Class
-public class PatternResolver
-{
-    public Task ResolveAsync(string pattern, CancellationToken token, Action<string> onFind)
+    private Task ResolvePatternAsync(string pattern, CancellationToken token, Action<string> onFind)
     {
         return Task.Run(() =>
         {
+            if (_settings is null) return;
+
             try
             {
                 var resolver = PathResolver.Create(builder =>
                 {
+                    builder.WithPathSeparator(_settings.Separator);
                     builder.WithCustomStrategy<HasFileStrategy>("hasFile");
                     builder.WithCustomStrategy<HasDirectoryStrategy>("hasDirectory");
                     builder.WithCustomStrategy<JsonFileStrategy>("hasJson");
@@ -113,13 +126,62 @@ public class PatternResolver
 
                 if (token.IsCancellationRequested) return;
 
-                var paths = resolver.ResolveAll(pattern, token).Take(10);
+                var paths = resolver
+                    .ResolveAll(pattern, token)
+                    .Distinct()
+                    .Take(10);
 
                 foreach (var path in paths)
                 {
-                    if (token.IsCancellationRequested) return;
+                    if (token.IsCancellationRequested)
+                    {
+                        return;
+                    }
 
-                    onFind(path);
+                    if (_settings.MakeRelative is true)
+                    {
+                        var result = PathUtils.MakeRelative(path, _settings.CurrentDirectory, _settings.Separator);
+                        onFind(result);
+                    }
+                    else if (_settings.MakeRelative is false)
+                    {
+                        onFind(path);
+                    }
+                    else
+                    {
+                        // Default behavior: make relative but intelligently
+                        var relativePath =
+                            PathUtils.MakeRelative(path, _settings.CurrentDirectory, _settings.Separator);
+
+                        var shouldPickAbsolute =
+                            path.Length < relativePath.Length
+                            || relativePath.CountExcept("..", _settings.Separator.ToString()) == 0;
+
+                        string result;
+                        if (shouldPickAbsolute)
+                        {
+                            result = path;
+                        }
+                        else
+                        {
+                            result = relativePath;
+                            if (!result.Contains(_settings.Separator))
+                            {
+                                result = string.Concat(".", _settings.Separator, result);
+                            }
+                        }
+
+                        // Debug.WriteLine
+                        // (
+                        //     $"Base:\t\t{_settings.CurrentDirectory}\n" +
+                        //     $"Absolute:\t{path}\n" +
+                        //     $"Relative:\t{relativePath}\n" +
+                        //     $"Result:\t\t{result}\n" +
+                        //     $"====================\n"
+                        // );
+
+                        onFind(result);
+                    }
                 }
             }
             catch (Exception e)
