@@ -1,4 +1,5 @@
 <div align = "center">
+
 # WildPath
 
 ![WildPath](resources/logo-transparent-256x256.png)
