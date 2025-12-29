@@ -10,7 +10,7 @@ public class PathResolverBuilder
     private IFileSystem? _fileSystem;
     private string? _currentDir;
     private Dictionary<string, Type> _strategies = new();
-    private char? _separator = System.IO.Path.DirectorySeparatorChar;
+    private char? _separator;
 
     public PathResolverBuilder()
     {

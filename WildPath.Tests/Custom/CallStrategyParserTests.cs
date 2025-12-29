@@ -1,7 +1,5 @@
 ﻿using WildPath.Internals;
 using System;
-using System.Collections.Immutable;
-using System.ComponentModel.Design;
 using Xunit;
 
 namespace WildPath.Tests;
@@ -16,14 +14,14 @@ public class CustomStrategyCallParserTests
         var expectedMethodName = "MethodName";
         var expectedParameters = new[] { "param1", "param2", "param3" }
             .Select((value, index) => new StrategyCallParameterInfo(null, value, index))
-            .ToImmutableArray();
+            .ToArray();
 
         // Act
         var result = CustomStrategyCallParser.ExtractMethodCall(input);
 
         // Assert
         Assert.Equal(expectedMethodName, result.MethodName);
-        Assert.Equal(expectedParameters, result.Parameters.ToImmutableArray());
+        Assert.Equal(expectedParameters, result.Parameters);
     }
     
     // single parameter
@@ -35,14 +33,14 @@ public class CustomStrategyCallParserTests
         var expectedMethodName = "MethodName";
         var expectedParameters = new[] { "param1" }
             .Select((value, index) => new StrategyCallParameterInfo(null, value, index))
-            .ToImmutableArray();
+            .ToArray();
 
         // Act
         var result = CustomStrategyCallParser.ExtractMethodCall(input);
 
         // Assert
         Assert.Equal(expectedMethodName, result.MethodName);
-        Assert.Equal(expectedParameters, result.Parameters.ToImmutableArray());
+        Assert.Equal(expectedParameters, result.Parameters);
     }
 
     [Fact]
@@ -69,14 +67,14 @@ public class CustomStrategyCallParserTests
         var expectedMethodName = "MethodName";
         var expectedParameters = new[] { "param1", "param2", "param3" }
             .Select((value, index) => new StrategyCallParameterInfo(null, value, index))
-            .ToImmutableArray();
+            .ToArray();
 
         // Act
         var result = CustomStrategyCallParser.ExtractMethodCall(input);
 
         // Assert
         Assert.Equal(expectedMethodName, result.MethodName);
-        Assert.Equal(expectedParameters, result.Parameters.ToImmutableArray());
+        Assert.Equal(expectedParameters, result.Parameters);
     }
 
     [Fact]
@@ -109,7 +107,7 @@ public class CustomStrategyCallParserTests
         var expectedMethodName = "MethodName";
         var expectedParameters = new[] { "param1", "param@2", "param-3" }
             .Select((value, index) => new StrategyCallParameterInfo(null, value, index))
-            .ToImmutableArray();
+            .ToArray();
 
         // Act
         var result = CustomStrategyCallParser.ExtractMethodCall(input);
@@ -127,14 +125,14 @@ public class CustomStrategyCallParserTests
         var expectedMethodName = "MethodName";
         var expectedParameters = new[] { "", "", "" }
             .Select((value, index) => new StrategyCallParameterInfo(null, value, index))
-            .ToImmutableArray();
+            .ToArray();
 
         // Act
         var result = CustomStrategyCallParser.ExtractMethodCall(input);
 
         // Assert
         Assert.Equal(expectedMethodName, result.MethodName);
-        Assert.Equal(expectedParameters, result.Parameters.ToImmutableArray());
+        Assert.Equal(expectedParameters, result.Parameters);
     }
     
     // :hasJson(myJson.json, $..Products[?(@.Price >= 50)].Name, Anvil):
@@ -146,14 +144,14 @@ public class CustomStrategyCallParserTests
         var expectedMethodName = "hasJson";
         var expectedParameters = new[] { "myJson.json", "$..Products[?(@.Price >= 50)].Name", "Anvil" }
             .Select((value, index) => new StrategyCallParameterInfo(null, value, index))
-            .ToImmutableArray();
+            .ToArray();
 
         // Act
         var result = CustomStrategyCallParser.ExtractMethodCall(input);
 
         // Assert
         Assert.Equal(expectedMethodName, result.MethodName);
-        Assert.Equal(expectedParameters, result.Parameters.ToImmutableArray());
+        Assert.Equal(expectedParameters, result.Parameters);
     }
     
     // named
@@ -165,13 +163,13 @@ public class CustomStrategyCallParserTests
         var expectedMethodName = "MethodName";
         var expectedParameters = new[] { "param1: value1", "param2: value2", "param3: value3" }
             .Select((value, index) => new StrategyCallParameterInfo(value.Split(':')[0], value.Split(':')[1].Trim(), index))
-            .ToImmutableArray();
+            .ToArray();
 
         // Act
         var result = CustomStrategyCallParser.ExtractMethodCall(input);
 
         // Assert
         Assert.Equal(expectedMethodName, result.MethodName);
-        Assert.Equal(expectedParameters, result.Parameters.ToImmutableArray());
+        Assert.Equal(expectedParameters, result.Parameters);
     }
 }

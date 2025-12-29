@@ -23,7 +23,10 @@ public class PathResolverWithCustomStrategyTests
             builder.WithCurrentDirectory("C:/");
         });
 
-        var result = resolver.Resolve("**/:hasFile(test.txt):");
-        Assert.Equal("C:/a/b", result);
+        var resultForwardSlash = resolver.Resolve("**/:hasFile(test.txt):");
+        Assert.Equal("C:/a/b", resultForwardSlash);
+
+        var resultBackSlash = resolver.Resolve("**\\:hasFile(test.txt):");
+        Assert.Equal("C:/a/b", resultBackSlash);
     }
 }
