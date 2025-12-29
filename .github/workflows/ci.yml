@@ -2,9 +2,9 @@ name: .NET CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "main" ]
 
 jobs:
   build:
@@ -32,13 +32,13 @@ jobs:
         run: dotnet restore
 
       - name: Build
-        run: dotnet build --no-restore -c Release /p:Version="${{ env.VERSION }}"
+        run: dotnet build --no-restore -c Release -p:Version="${{ env.VERSION }}"
 
       - name: Test
         run: dotnet test --no-build -c Release --verbosity normal
 
       - name: Pack
-        run: dotnet pack WildPath/WildPath.csproj --no-build -c Release -o out /p:Version="${{ env.VERSION }}"
+        run: dotnet pack WildPath/WildPath.csproj --no-build -c Release -o out -p:Version="${{ env.VERSION }}"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -51,6 +51,11 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
       - name: Download NuGet Package
         uses: actions/download-artifact@v4
         with:
@@ -67,5 +72,5 @@ jobs:
 
       - name: Upload to NuGet.org
         run: |
-          dotnet nuget push "nuget-packages/*.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json
+          dotnet nuget push "nuget-packages/*.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
           echo "Version: ${{ needs.build.outputs.version }}"
