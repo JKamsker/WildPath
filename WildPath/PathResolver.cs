@@ -21,7 +21,7 @@ public class PathResolver
 
         _currentDir = currentDir ?? fileSystem.CurrentDirectory;
         _fileSystem = fileSystem;
-        DirectorySeparatorChar = fileSystem.DirectorySeparatorChar;
+        // DirectorySeparatorChar = fileSystem.DirectorySeparatorChar;
 
         if (strategyFactory is not null)
         {
@@ -109,7 +109,7 @@ public class PathResolver
         var result = EvaluateAll(path, token).FirstOrDefault();
         if (result == null)
         {
-            var reassembledPath = string.Join((DirectorySeparatorChar ?? System.IO.Path.DirectorySeparatorChar).ToString(), path);
+            var reassembledPath = string.Join((DirectorySeparatorChar ?? _fileSystem.DirectorySeparatorChar).ToString(), path);
             throw new DirectoryNotFoundException($"Path '{reassembledPath}' not found.");
         }
 
