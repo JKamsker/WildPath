@@ -10,13 +10,13 @@ public class PathResolverBuilder
     private IFileSystem? _fileSystem;
     private string? _currentDir;
     private Dictionary<string, Type> _strategies = new();
-    private char _separator = System.IO.Path.DirectorySeparatorChar;
+    private char? _separator = System.IO.Path.DirectorySeparatorChar;
 
     public PathResolverBuilder()
     {
     }
     
-    public PathResolverBuilder WithPathSeparator(char separator)
+    public PathResolverBuilder WithPathSeparator(char? separator)
     {
         _separator = separator;
         return this;

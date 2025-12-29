@@ -13,7 +13,7 @@ public class PathResolver
     private static readonly PathResolver _default = new();
     private readonly IStrategyFactory _strategyFactory;
 
-    public char DirectorySeparatorChar { get; set; }
+    public char? DirectorySeparatorChar { get; set; }
 
     public PathResolver(string? currentDir = null, IFileSystem? fileSystem = null, IStrategyFactory? strategyFactory = null)
     {
@@ -25,7 +25,8 @@ public class PathResolver
 
         if (strategyFactory is not null)
         {
-            _strategyFactory = new CompositeStrategyFactory(
+            _strategyFactory = new CompositeStrategyFactory
+            (
                 new StrategyFactory(fileSystem),
                 strategyFactory,
                 new DefaultStrategyFactory(fileSystem)
@@ -33,7 +34,8 @@ public class PathResolver
         }
         else
         {
-            _strategyFactory = new CompositeStrategyFactory(
+            _strategyFactory = new CompositeStrategyFactory
+            (
                 new StrategyFactory(fileSystem),
                 new DefaultStrategyFactory(fileSystem)
             );
@@ -98,7 +100,7 @@ public class PathResolver
 
     internal string EvaluateExpression(string path, CancellationToken token = default)
     {
-        var segments = path.Split(DirectorySeparatorChar);
+        var segments = Split(path);
         return EvaluateExpression(segments, token);
     }
 
@@ -107,8 +109,8 @@ public class PathResolver
         var result = EvaluateAll(path, token).FirstOrDefault();
         if (result == null)
         {
-            throw new DirectoryNotFoundException(
-                $"Path '{string.Join(DirectorySeparatorChar.ToString(), path)}' not found.");
+            var reassembledPath = string.Join((DirectorySeparatorChar ?? System.IO.Path.DirectorySeparatorChar).ToString(), path);
+            throw new DirectoryNotFoundException($"Path '{reassembledPath}' not found.");
         }
 
         return result;
@@ -116,7 +118,7 @@ public class PathResolver
 
     internal IEnumerable<string> EvaluateAll(string path, CancellationToken token = default)
     {
-        var segments = path.Split(DirectorySeparatorChar);
+        var segments = Split(path);
         return EvaluateAll(segments, token);
     }
 
@@ -129,6 +131,16 @@ public class PathResolver
         }
 
         return segment.Evaluate(_currentDir, token);
+    }
+
+    private string[] Split(string path)
+    {
+        if (DirectorySeparatorChar.HasValue)
+        {
+            return path.Split(DirectorySeparatorChar.Value);
+        }
+
+        return path.Split(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar);
     }
 }
 

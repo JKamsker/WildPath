@@ -2,6 +2,8 @@ using WildPath.Abstractions;
 using WildPath.Extensions;
 using WildPath.Internals;
 using WildPath.Strategies;
+using System.Linq;
+
 
 namespace WildPath;
 
@@ -64,7 +66,7 @@ internal class PathEvaluatorSegment : IPathEvaluatorSegment
         );
 
         PathEvaluatorSegment? currentSegment = null;
-        foreach (var (element, i) in path.Reverse().Select((x, i) => (x, i)))
+        foreach (var (element, i) in path.AsEnumerable().Reverse().Select((x, i) => (x, i)))
         {
             var isFirst = i == path.Length - 1;
             currentSegment = new PathEvaluatorSegment
