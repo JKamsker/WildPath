@@ -12,7 +12,7 @@ public class CustomStrategyFactory : IStrategyFactory
 
     public CustomStrategyFactory(IFileSystem? fileSystem = null)
     {
-        _fileSystem = fileSystem;
+        _fileSystem = fileSystem ?? RealFileSystem.Instance;
     }
 
     public bool TryCreate(string segment, [NotNullWhen(true)] out ISegmentStrategy? strategy)

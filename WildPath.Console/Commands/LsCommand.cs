@@ -10,7 +10,7 @@ internal class LsCommand : Command<LsCommand.LsSettings>
     public class LsSettings : CommandSettings
     {
         // positional path argument
-        [CommandArgument(0, "[path]")] public string Path { get; set; }
+        [CommandArgument(0, "[path]")] public string? Path { get; set; }
 
         // [CommandOption("-l|--long")]
         // public bool Long { get; set; }
@@ -25,7 +25,7 @@ internal class LsCommand : Command<LsCommand.LsSettings>
         
         // set current directory
         [CommandOption("-C|--directory")] 
-        public string Directory { get; set; }
+        public string? Directory { get; set; }
     }
 
     public override int Execute(CommandContext context, LsSettings settings)
@@ -44,12 +44,13 @@ internal class LsCommand : Command<LsCommand.LsSettings>
             
             if(customCurrentDirectory != null)
             {
-                builder.WithCurrentDirectory(settings.Directory);
+                builder.WithCurrentDirectory(customCurrentDirectory);
             }
         });
 
+        var expression = string.IsNullOrWhiteSpace(settings.Path) ? "." : settings.Path;
         var paths = resolver
-            .ResolveAll(settings.Path, TimeSpan.FromSeconds(1).ToCancellationToken())
+            .ResolveAll(expression, TimeSpan.FromSeconds(1).ToCancellationToken())
             .Take(settings.Limit ?? 10);
 
         foreach (var path in paths)

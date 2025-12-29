@@ -49,7 +49,7 @@ internal class StrategyFactory : IStrategyFactory
         return null;
     }
 
-    private bool TryCreateWildcardStrategy(string segment, out ISegmentStrategy strategy)
+    private bool TryCreateWildcardStrategy(string segment, out ISegmentStrategy? strategy)
     {
         if (!segment.Contains('*'))
         {

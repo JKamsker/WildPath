@@ -1,5 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
 using WildPath.Abstractions;
-using WildPath.Internals;
 
 namespace WildPath.Strategies;
 
@@ -17,7 +17,7 @@ public class CompositeStrategyFactory(params IStrategyFactory[] factories) : ISt
         );
     }
 
-    public bool TryCreate(string segment, out ISegmentStrategy strategy)
+    public bool TryCreate(string segment, [NotNullWhen(true)] out ISegmentStrategy? strategy)
     {
         foreach (var factory in factories)
         {

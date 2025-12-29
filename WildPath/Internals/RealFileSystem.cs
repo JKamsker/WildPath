@@ -22,7 +22,7 @@ internal class RealFileSystem : IFileSystem
         {
             return Directory.EnumerateDirectories(path);
         }
-        catch (UnauthorizedAccessException e)
+        catch (UnauthorizedAccessException)
         {
             return Enumerable.Empty<string>();
         }
@@ -40,7 +40,7 @@ internal class RealFileSystem : IFileSystem
         {
             return Directory.EnumerateFileSystemEntries(path);
         }
-        catch (UnauthorizedAccessException e)
+        catch (UnauthorizedAccessException)
         {
             return Enumerable.Empty<string>();
         }

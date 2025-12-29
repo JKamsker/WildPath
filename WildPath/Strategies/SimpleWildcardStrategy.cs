@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using WildPath.Abstractions;
 using WildPath.Extensions;
 
@@ -100,7 +101,11 @@ internal class SimpleWildcardStrategy : SegmentStrategyBase, ISegmentStrategy
     //     }
     // }
 
-    public static bool TryCreate(string segment, IFileSystem fileSystem, out ISegmentStrategy strategy)
+    public static bool TryCreate(
+        string segment,
+        IFileSystem fileSystem,
+        [NotNullWhen(true)] out ISegmentStrategy? strategy
+    )
     {
         var segSpan = segment.AsSpan();
         var partOne = segSpan.CutUntil('*');
@@ -132,13 +137,19 @@ internal class SimpleWildcardStrategy : SegmentStrategyBase, ISegmentStrategy
             endsWithWildcard
         );
 
+        if (!result.IsValid)
+        {
+            strategy = null;
+            return false;
+        }
+
         strategy = result;
-        return result.IsValid;
+        return true;
     }
 
     private bool TryCreateMatcher(out Func<string, bool> matcher)
     {
-        matcher = default;
+        matcher = static _ => false;
 
         if (_startsWithWildcard && _endsWithWildcard)
         {

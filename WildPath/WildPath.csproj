@@ -6,6 +6,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PackageIcon>logo-transparent-128x128.png</PackageIcon>
+		<WarnAsError>true</WarnAsError>
 	</PropertyGroup>
 
 
@@ -14,6 +15,7 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>WildPath</PackageId>
 		<Version>0.0.7</Version>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<Authors>Jonas Kamsker</Authors>
 		<Company>JKamsker</Company>
 		<Product>WildPath</Product>
@@ -45,6 +47,10 @@
 
 	<ItemGroup>
 	  <None Include="..\resources\logo-transparent-128x128.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	  <None Include="..\README.md">
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
 	  </None>

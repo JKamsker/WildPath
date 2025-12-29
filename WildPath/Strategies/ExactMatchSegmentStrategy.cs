@@ -8,7 +8,7 @@ internal class ExactMatchSegmentStrategy
     private readonly string _segment;
     private readonly IFileSystem _fileSystem;
 
-    private IPathEvaluatorSegment _parentSegment;
+    private IPathEvaluatorSegment _parentSegment = default!;
     private bool _isRootSegment;
 
     IPathEvaluatorSegment IParentSegmentAware.ParentSegment
