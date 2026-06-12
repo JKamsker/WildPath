@@ -58,7 +58,41 @@ function Add-Text(
         "<text x=""$x"" y=""$y"" text-anchor=""$anchor"" font-size=""$size"" font-weight=""$weight"">$encoded</text>")
 }
 
-$rows = Import-Csv -Path $CsvPath -Delimiter ';' | ForEach-Object {
+function Import-BenchmarkCsv([string] $path) {
+    $lines = Get-Content -Path $path
+    $lines = @($lines | Where-Object { [string]::IsNullOrWhiteSpace($_) -eq $false })
+    if ($lines.Count -eq 0) {
+        throw "Benchmark CSV '$path' is empty."
+    }
+
+    $lines[0] = $lines[0].TrimStart([char] 0xFEFF)
+    if ($lines[0].StartsWith('sep=', [System.StringComparison]::OrdinalIgnoreCase)) {
+        $lines = @($lines | Select-Object -Skip 1)
+    }
+
+    $header = $lines[0]
+    $semicolonCount = @($header.ToCharArray() | Where-Object { $_ -eq ';' }).Count
+    $commaCount = @($header.ToCharArray() | Where-Object { $_ -eq ',' }).Count
+    $delimiter = if ($semicolonCount -gt $commaCount) {
+        ';'
+    }
+    else {
+        ','
+    }
+
+    $rows = $lines | ConvertFrom-Csv -Delimiter $delimiter
+    $firstRow = $rows | Select-Object -First 1
+    if ($null -eq $firstRow -or
+        $null -eq $firstRow.PSObject.Properties['Method'] -or
+        $null -eq $firstRow.PSObject.Properties['Mean'] -or
+        $null -eq $firstRow.PSObject.Properties['Allocated']) {
+        throw "Benchmark CSV '$path' does not contain Method, Mean, and Allocated columns."
+    }
+
+    return $rows
+}
+
+$rows = Import-BenchmarkCsv $CsvPath | ForEach-Object {
     [pscustomobject]@{
         Case = Get-CaseName $_.Method
         Variant = Get-VariantName $_.Method
