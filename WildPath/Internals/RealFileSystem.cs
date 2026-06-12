@@ -1,8 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using WildPath.Abstractions;
 
 namespace WildPath.Internals;
 
-internal class RealFileSystem : IFileSystem
+internal class RealFileSystem : IFileSystem, IFileSystemEntryLookup, IFileSystemEntryEnumerable
 {
     public char DirectorySeparatorChar => Path.DirectorySeparatorChar;
     public string CurrentDirectory => Directory.GetCurrentDirectory();
@@ -28,6 +29,29 @@ internal class RealFileSystem : IFileSystem
         }
     }
 
+    public void VisitDirectories<TVisitor>(string path, ref TVisitor visitor)
+        where TVisitor : struct, IFileSystemEntryVisitor
+    {
+        if (IsDriveLetterPath(path))
+        {
+            path += DirectorySeparatorChar;
+        }
+
+        try
+        {
+            foreach (var directory in Directory.EnumerateDirectories(path))
+            {
+                if (!visitor.Visit(directory))
+                {
+                    return;
+                }
+            }
+        }
+        catch (UnauthorizedAccessException)
+        {
+        }
+    }
+
     public IEnumerable<string> EnumerateFileSystemEntries(string path)
     {
         // Fix for if path is 'C:'
@@ -43,6 +67,29 @@ internal class RealFileSystem : IFileSystem
         catch (UnauthorizedAccessException)
         {
             return Enumerable.Empty<string>();
+        }
+    }
+
+    public void VisitFileSystemEntries<TVisitor>(string path, ref TVisitor visitor)
+        where TVisitor : struct, IFileSystemEntryVisitor
+    {
+        if (IsDriveLetterPath(path))
+        {
+            path += DirectorySeparatorChar;
+        }
+
+        try
+        {
+            foreach (var entry in Directory.EnumerateFileSystemEntries(path))
+            {
+                if (!visitor.Visit(entry))
+                {
+                    return;
+                }
+            }
+        }
+        catch (UnauthorizedAccessException)
+        {
         }
     }
 
@@ -69,6 +116,21 @@ internal class RealFileSystem : IFileSystem
     public bool EntryExists(string path)
     {
         return FileExists(path) || DirectoryExists(path);
+    }
+
+    public bool TryGetFileSystemEntry(
+        string directoryPath,
+        string entryName,
+        [NotNullWhen(true)] out string? entryPath)
+    {
+        entryPath = Path.Combine(directoryPath, entryName);
+        if (EntryExists(entryPath))
+        {
+            return true;
+        }
+
+        entryPath = null;
+        return false;
     }
 
     private static bool IsDriveLetterPath(string path)

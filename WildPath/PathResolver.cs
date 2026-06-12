@@ -65,6 +65,11 @@ public class PathResolver
         return _default.EvaluateExpression(expression, token);
     }
 
+    public static string Resolve(PathExpression expression, CancellationToken token = default)
+    {
+        return _default.EvaluateExpression(expression, token);
+    }
+
     /// <summary>
     /// Resolves the path expression and returns the first result.
     /// </summary>
@@ -87,6 +92,11 @@ public class PathResolver
         return _default.EvaluateAll(path, token);
     }
 
+    public static IEnumerable<string> ResolveAll(PathExpression path, CancellationToken token = default)
+    {
+        return _default.EvaluateAll(path, token);
+    }
+
     /// <summary>
     /// Resolves the path expression and returns all results.
     /// </summary>
@@ -104,9 +114,27 @@ public class PathResolver
         return EvaluateExpression(segments, token);
     }
 
+    internal string EvaluateExpression(PathExpression path, CancellationToken token = default)
+    {
+        var segment = GetSegment(path);
+        var result = segment.EvaluateFirst(_currentDir, token);
+        if (result == null)
+        {
+            throw new DirectoryNotFoundException($"Path '{path.RawPath}' not found.");
+        }
+
+        return result;
+    }
+
     internal string EvaluateExpression(string[] path, CancellationToken token = default)
     {
-        var result = EvaluateAll(path, token).FirstOrDefault();
+        var segment = PathEvaluatorSegment.FromExpressions(path, _fileSystem, _strategyFactory);
+        if (segment == null)
+        {
+            throw new InvalidOperationException("Path is empty.");
+        }
+
+        var result = segment.EvaluateFirst(_currentDir, token);
         if (result == null)
         {
             var reassembledPath = string.Join((DirectorySeparatorChar ?? _fileSystem.DirectorySeparatorChar).ToString(), path);
@@ -120,6 +148,12 @@ public class PathResolver
     {
         var segments = Split(path);
         return EvaluateAll(segments, token);
+    }
+
+    internal IEnumerable<string> EvaluateAll(PathExpression path, CancellationToken token = default)
+    {
+        var segment = GetSegment(path);
+        return segment.Evaluate(_currentDir, token);
     }
 
     internal IEnumerable<string> EvaluateAll(string[] pathSegments, CancellationToken token = default)
@@ -142,6 +176,20 @@ public class PathResolver
 
         return path.Split(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar);
     }
+
+    private PathEvaluatorSegment GetSegment(PathExpression path)
+    {
+        var segment = DirectorySeparatorChar.HasValue
+            ? PathEvaluatorSegment.FromExpressions(Split(path.RawPath), _fileSystem, _strategyFactory)
+            : path.GetOrCreate(_fileSystem, _strategyFactory);
+
+        if (segment == null)
+        {
+            throw new InvalidOperationException("Path is empty.");
+        }
+
+        return segment;
+    }
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
@@ -155,6 +203,11 @@ public static class PathResolverExtensions
     /// <param name="token">The cancellation token.</param>
     /// <returns>The first path that matches the expression.</returns>
     public static string Resolve(this PathResolver resolver, string expression, CancellationToken token = default)
+    {
+        return resolver.EvaluateExpression(expression, token);
+    }
+
+    public static string Resolve(this PathResolver resolver, PathExpression expression, CancellationToken token = default)
     {
         return resolver.EvaluateExpression(expression, token);
     }
@@ -177,6 +230,11 @@ public static class PathResolverExtensions
     /// <param name="path">The path expression to resolve.</param>
     /// <returns>All paths that match the expression.</returns>
     public static IEnumerable<string> ResolveAll(this PathResolver resolver, string path, CancellationToken token = default)
+    {
+        return resolver.EvaluateAll(path, token);
+    }
+
+    public static IEnumerable<string> ResolveAll(this PathResolver resolver, PathExpression path, CancellationToken token = default)
     {
         return resolver.EvaluateAll(path, token);
     }

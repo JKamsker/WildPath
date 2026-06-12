@@ -31,6 +31,37 @@ internal class ParentsSegmentStrategy : SegmentStrategyBase, ISegmentStrategy
         }
     }
 
+    internal override string? EvaluateFirst(
+        string currentDirectory,
+        PathEvaluatorSegment? child,
+        CancellationToken token = default
+    )
+    {
+        var tempCurrentDirectory = currentDirectory;
+        while (tempCurrentDirectory != null)
+        {
+            if (token.IsCancellationRequested)
+            {
+                return null;
+            }
+
+            if (child == null)
+            {
+                return tempCurrentDirectory;
+            }
+
+            var result = child.EvaluateFirst(tempCurrentDirectory, token);
+            if (result is not null)
+            {
+                return result;
+            }
+
+            tempCurrentDirectory = _fileSystem.GetDirectoryName(tempCurrentDirectory);
+        }
+
+        return null;
+    }
+
     // public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
     // {
     //     while (currentDirectory != null && !token.IsCancellationRequested)

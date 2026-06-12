@@ -56,4 +56,44 @@ public abstract class SegmentStrategyBase : ISegmentStrategy
             }
         }
     }
+
+    internal virtual string? EvaluateFirst(
+        string currentDirectory,
+        PathEvaluatorSegment? child,
+        CancellationToken token = default
+    )
+    {
+        if (token.IsCancellationRequested)
+        {
+            return null;
+        }
+
+        var fsEntries = GetSource(currentDirectory);
+
+        foreach (var fsEntry in fsEntries)
+        {
+            if (token.IsCancellationRequested)
+            {
+                return null;
+            }
+
+            if (!Matches(fsEntry))
+            {
+                continue;
+            }
+
+            if (child == null)
+            {
+                return fsEntry;
+            }
+
+            var result = child.EvaluateFirst(fsEntry, token);
+            if (result is not null)
+            {
+                return result;
+            }
+        }
+
+        return null;
+    }
 }

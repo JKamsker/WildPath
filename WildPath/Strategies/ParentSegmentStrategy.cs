@@ -31,6 +31,26 @@ internal class ParentSegmentStrategy : SegmentStrategyBase, ISegmentStrategy
         
         yield return parentDirectory;
     }
+
+    internal override string? EvaluateFirst(
+        string currentDirectory,
+        PathEvaluatorSegment? child,
+        CancellationToken token = default
+    )
+    {
+        if (token.IsCancellationRequested)
+        {
+            return null;
+        }
+
+        var parentDirectory = _fileSystem.GetDirectoryName(currentDirectory);
+        if (parentDirectory == null)
+        {
+            return null;
+        }
+
+        return child?.EvaluateFirst(parentDirectory, token) ?? parentDirectory;
+    }
     
     // public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
     // {

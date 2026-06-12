@@ -7,6 +7,7 @@
 		<Nullable>enable</Nullable>
 		<PackageIcon>logo-transparent-128x128.png</PackageIcon>
 		<WarnAsError>true</WarnAsError>
+		<TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackSourceGenerator</TargetsForTfmSpecificContentInPackage>
 	</PropertyGroup>
 
 
@@ -54,10 +55,32 @@
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
 	  </None>
+	  <None Include="buildTransitive\WildPath.props">
+	    <Pack>True</Pack>
+	    <PackagePath>buildTransitive\WildPath.props</PackagePath>
+	  </None>
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Folder Include="Strategies\Custom\" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\WildPath.SourceGenerator\WildPath.SourceGenerator.csproj"
+	                    ReferenceOutputAssembly="false"
+	                    OutputItemType="Analyzer"
+	                    PrivateAssets="all" />
+	</ItemGroup>
+
+	<Target Name="PackSourceGenerator" Condition="'$(TargetFramework)' == 'netstandard2.0'">
+	  <MSBuild Projects="..\WildPath.SourceGenerator\WildPath.SourceGenerator.csproj"
+	           Targets="Build"
+	           Properties="Configuration=$(Configuration)" />
+	  <ItemGroup>
+	    <TfmSpecificPackageFile Include="..\WildPath.SourceGenerator\bin\$(Configuration)\netstandard2.0\WildPath.SourceGenerator.dll"
+	                            PackagePath="analyzers\dotnet\cs"
+	                            Condition="Exists('..\WildPath.SourceGenerator\bin\$(Configuration)\netstandard2.0\WildPath.SourceGenerator.dll')" />
+	  </ItemGroup>
+	</Target>
 
 </Project>

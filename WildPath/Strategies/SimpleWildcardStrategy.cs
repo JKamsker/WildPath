@@ -17,9 +17,8 @@ internal class SimpleWildcardStrategy : SegmentStrategyBase, ISegmentStrategy
     private readonly int _count;
     private readonly bool _startsWithWildcard;
     private readonly bool _endsWithWildcard;
-    private readonly Func<string, bool> _matcher;
 
-    public bool IsValid { get; }
+    public bool IsValid => true;
 
 
     /// <summary>
@@ -42,28 +41,106 @@ internal class SimpleWildcardStrategy : SegmentStrategyBase, ISegmentStrategy
         _count = count;
         _startsWithWildcard = startsWithWildcard;
         _endsWithWildcard = endsWithWildcard;
-        if (TryCreateMatcher(out _matcher))
-        {
-            IsValid = true;
-        }
     }
 
 
     public override bool Matches(string path)
     {
-        var fileName = _fileSystem.GetFileName(path) ?? string.Empty;
-        if (string.IsNullOrEmpty(fileName))
+        var fileName = GetFileName(path);
+        if (fileName.IsEmpty)
         {
             return false;
         }
 
-        return _matcher(fileName);
+        return MatchesFileName(fileName);
     }
 
     protected override IEnumerable<string> GetSource(string currentDirectory)
     {
         return _fileSystem
             .EnumerateFileSystemEntries(currentDirectory);
+    }
+
+    internal override string? EvaluateFirst(
+        string currentDirectory,
+        PathEvaluatorSegment? child,
+        CancellationToken token = default
+    )
+    {
+        if (_fileSystem is IFileSystemEntryEnumerable enumerable)
+        {
+            var visitor = new FirstWildcardEntryVisitor(this, child, token);
+            enumerable.VisitFileSystemEntries(currentDirectory, ref visitor);
+            return visitor.Result;
+        }
+
+        foreach (var entry in _fileSystem.EnumerateFileSystemEntries(currentDirectory))
+        {
+            if (token.IsCancellationRequested)
+            {
+                return null;
+            }
+
+            if (!Matches(entry))
+            {
+                continue;
+            }
+
+            if (child == null)
+            {
+                return entry;
+            }
+
+            var result = child.EvaluateFirst(entry, token);
+            if (result is not null)
+            {
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    private struct FirstWildcardEntryVisitor : IFileSystemEntryVisitor
+    {
+        private readonly SimpleWildcardStrategy _strategy;
+        private readonly PathEvaluatorSegment? _child;
+        private readonly CancellationToken _token;
+
+        public FirstWildcardEntryVisitor(
+            SimpleWildcardStrategy strategy,
+            PathEvaluatorSegment? child,
+            CancellationToken token)
+        {
+            _strategy = strategy;
+            _child = child;
+            _token = token;
+            Result = null;
+        }
+
+        public string? Result { get; private set; }
+
+        public bool Visit(string path)
+        {
+            if (_token.IsCancellationRequested)
+            {
+                return false;
+            }
+
+            if (!_strategy.Matches(path))
+            {
+                return true;
+            }
+
+            if (_child == null)
+            {
+                Result = path;
+                return false;
+            }
+
+            Result = _child.EvaluateFirst(path, _token);
+            return Result is null;
+        }
     }
 
     // public IEnumerable<string> Evaluate(string currentDirectory, IPathEvaluatorSegment? child, CancellationToken token = default)
@@ -107,6 +184,12 @@ internal class SimpleWildcardStrategy : SegmentStrategyBase, ISegmentStrategy
         [NotNullWhen(true)] out ISegmentStrategy? strategy
     )
     {
+        if (!segment.Contains('*'))
+        {
+            strategy = null;
+            return false;
+        }
+
         var segSpan = segment.AsSpan();
         var partOne = segSpan.CutUntil('*');
         var partTwo = segSpan.CutUntil('*');
@@ -125,7 +208,6 @@ internal class SimpleWildcardStrategy : SegmentStrategyBase, ISegmentStrategy
             return false;
         }
 
-        // test: make a delegate for this
         var result = new SimpleWildcardStrategy
         (
             segment: segment,
@@ -137,43 +219,96 @@ internal class SimpleWildcardStrategy : SegmentStrategyBase, ISegmentStrategy
             endsWithWildcard
         );
 
-        if (!result.IsValid)
-        {
-            strategy = null;
-            return false;
-        }
-
         strategy = result;
         return true;
     }
 
-    private bool TryCreateMatcher(out Func<string, bool> matcher)
+    internal static ISegmentStrategy CreateInterpreted(
+        PathExpressionSegment segment,
+        IFileSystem fileSystem)
     {
-        matcher = static _ => false;
+        return segment.Kind switch
+        {
+            PathExpressionSegmentKind.SimpleWildcardStartsWith => new SimpleWildcardStrategy(
+                segment.RawValue,
+                fileSystem,
+                segment.Value,
+                string.Empty,
+                count: 1,
+                startsWithWildcard: false,
+                endsWithWildcard: true),
+            PathExpressionSegmentKind.SimpleWildcardEndsWith => new SimpleWildcardStrategy(
+                segment.RawValue,
+                fileSystem,
+                string.Empty,
+                segment.Value,
+                count: 1,
+                startsWithWildcard: true,
+                endsWithWildcard: false),
+            PathExpressionSegmentKind.SimpleWildcardContains => new SimpleWildcardStrategy(
+                segment.RawValue,
+                fileSystem,
+                string.Empty,
+                segment.Value,
+                count: 1,
+                startsWithWildcard: true,
+                endsWithWildcard: true),
+            PathExpressionSegmentKind.SimpleWildcardStartsAndEnds => new SimpleWildcardStrategy(
+                segment.RawValue,
+                fileSystem,
+                segment.Value,
+                segment.SecondValue,
+                count: 2,
+                startsWithWildcard: false,
+                endsWithWildcard: false),
+            _ => throw new ArgumentOutOfRangeException(nameof(segment))
+        };
+    }
 
+    private bool MatchesFileName(ReadOnlySpan<char> path)
+    {
         if (_startsWithWildcard && _endsWithWildcard)
         {
-            matcher = path => path.Contains(_partTwo, StringComparison.OrdinalIgnoreCase);
-            return true;
+            return path.Contains(_partTwo.AsSpan(), StringComparison.OrdinalIgnoreCase);
         }
 
-        switch (_count)
+        return _count switch
         {
-            case 1 when _startsWithWildcard:
-                matcher = path => path.EndsWith(_partTwo, StringComparison.OrdinalIgnoreCase);
-                return true;
-            case 1 when _endsWithWildcard:
-                matcher = path => path.StartsWith(_partOne, StringComparison.OrdinalIgnoreCase);
-                return true;
-            case 2:
-                // Pattern looks like "He*lo"
-                // path should start with prefix and end with suffix
-                matcher = path => path.StartsWith(_partOne, StringComparison.OrdinalIgnoreCase) &&
-                                  path.EndsWith(_partTwo, StringComparison.OrdinalIgnoreCase);
-                return true;
-            default:
-                // throw new InvalidOperationException("Invalid wildcard usage");
-                return false;
+            1 when _startsWithWildcard => path.EndsWith(_partTwo.AsSpan(), StringComparison.OrdinalIgnoreCase),
+            1 when _endsWithWildcard => path.StartsWith(_partOne.AsSpan(), StringComparison.OrdinalIgnoreCase),
+            2 => path.StartsWith(_partOne.AsSpan(), StringComparison.OrdinalIgnoreCase) &&
+                 path.EndsWith(_partTwo.AsSpan(), StringComparison.OrdinalIgnoreCase),
+            _ => false
+        };
+    }
+
+    private ReadOnlySpan<char> GetFileName(string path)
+    {
+        var span = TrimTrailingSeparators(path.AsSpan());
+        var separatorIndex = span.LastIndexOfAny(
+            _fileSystem.DirectorySeparatorChar,
+            System.IO.Path.DirectorySeparatorChar,
+            System.IO.Path.AltDirectorySeparatorChar);
+        return separatorIndex < 0
+            ? span
+            : span[(separatorIndex + 1)..];
+    }
+
+    private ReadOnlySpan<char> TrimTrailingSeparators(ReadOnlySpan<char> path)
+    {
+        var length = path.Length;
+        while (length > 0 && IsDirectorySeparator(path[length - 1]))
+        {
+            length--;
         }
+
+        return path[..length];
+    }
+
+    private bool IsDirectorySeparator(char value)
+    {
+        return value == _fileSystem.DirectorySeparatorChar ||
+               value == System.IO.Path.DirectorySeparatorChar ||
+               value == System.IO.Path.AltDirectorySeparatorChar;
     }
 }

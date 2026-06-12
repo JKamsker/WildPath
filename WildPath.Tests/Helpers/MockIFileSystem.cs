@@ -1,10 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using WildPath.Abstractions;
 
 using WildPath.Extensions;
 
 namespace WildPath.Tests;
 
-public class MockFileSystem : IFileSystem
+public class MockFileSystem : IFileSystem, IFileSystemEntryLookup, IFileSystemEntryEnumerable
 {
     private readonly HashSet<string> _directories;
     public char DirectorySeparatorChar { get; }
@@ -67,6 +68,39 @@ public class MockFileSystem : IFileSystem
             ;
         
         return result;
+    }
+
+    public void VisitDirectories<TVisitor>(string path, ref TVisitor visitor)
+        where TVisitor : struct, IFileSystemEntryVisitor
+    {
+        VisitFileSystemEntries(path, ref visitor);
+    }
+
+    public void VisitFileSystemEntries<TVisitor>(string path, ref TVisitor visitor)
+        where TVisitor : struct, IFileSystemEntryVisitor
+    {
+        var normalizedPath = NormalizeDirectoryPath(path);
+        var prefix = normalizedPath + DirectorySeparatorChar;
+        var prefixLength = prefix.Length;
+
+        foreach (var directory in _directories)
+        {
+            if (!directory.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var remainder = directory.AsSpan()[prefixLength..];
+            var separatorIndex = remainder.IndexOf(DirectorySeparatorChar);
+            var entry = separatorIndex == -1
+                ? directory
+                : directory.Substring(0, prefixLength + separatorIndex);
+
+            if (!visitor.Visit(entry))
+            {
+                return;
+            }
+        }
     }
 
 
@@ -142,6 +176,24 @@ public class MockFileSystem : IFileSystem
     public bool EntryExists(string path)
     {
         return DirectoryExists(path);
+    }
+
+    public bool TryGetFileSystemEntry(
+        string directoryPath,
+        string entryName,
+        [NotNullWhen(true)] out string? entryPath)
+    {
+        var normalizedDirectory = NormalizeDirectoryPath(directoryPath);
+        var candidate = string.Concat(normalizedDirectory, DirectorySeparatorChar, entryName);
+        var normalizedCandidate = NormalizeDirectoryPath(candidate);
+
+        if (_directories.TryGetValue(normalizedCandidate, out entryPath))
+        {
+            return true;
+        }
+
+        entryPath = null;
+        return false;
     }
 
   

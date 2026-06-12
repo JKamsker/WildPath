@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);WildPath.Generated</InterceptorsNamespaces>
+    <InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);WildPath.Generated</InterceptorsPreviewNamespaces>
+  </PropertyGroup>
+</Project>
