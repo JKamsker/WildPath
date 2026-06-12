@@ -75,7 +75,8 @@
 	<Target Name="PackSourceGenerator" Condition="'$(TargetFramework)' == 'netstandard2.0'">
 	  <MSBuild Projects="..\WildPath.SourceGenerator\WildPath.SourceGenerator.csproj"
 	           Targets="Build"
-	           Properties="Configuration=$(Configuration)" />
+	           Properties="Configuration=$(Configuration)"
+	           Condition="'$(NoBuild)' != 'true'" />
 	  <ItemGroup>
 	    <TfmSpecificPackageFile Include="..\WildPath.SourceGenerator\bin\$(Configuration)\netstandard2.0\WildPath.SourceGenerator.dll"
 	                            PackagePath="analyzers\dotnet\cs"
