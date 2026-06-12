@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WildPath.Console", "WildPat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WildPath.SourceGenerator", "WildPath.SourceGenerator\WildPath.SourceGenerator.csproj", "{A68EAC75-65CB-4D96-9A62-7BEE2208A844}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WildPath.Benchmarks", "WildPath.Benchmarks\WildPath.Benchmarks.csproj", "{C325EC0B-CEA7-45E4-9846-C839DB8E5BDD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{A68EAC75-65CB-4D96-9A62-7BEE2208A844}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A68EAC75-65CB-4D96-9A62-7BEE2208A844}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A68EAC75-65CB-4D96-9A62-7BEE2208A844}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C325EC0B-CEA7-45E4-9846-C839DB8E5BDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C325EC0B-CEA7-45E4-9846-C839DB8E5BDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C325EC0B-CEA7-45E4-9846-C839DB8E5BDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C325EC0B-CEA7-45E4-9846-C839DB8E5BDD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

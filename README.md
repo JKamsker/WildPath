@@ -146,6 +146,28 @@ Example tests include:
 
 ---
 
+## **Performance**
+
+WildPath includes BenchmarkDotNet benchmarks for dynamic string resolution, source-generated literal interception, and direct compiled `PathExpression` resolution:
+
+```bash
+dotnet run -c Release --project WildPath.Benchmarks -- --filter '*'
+```
+
+Latest short-run benchmark on Windows 11, AMD Ryzen 9 9955HX, .NET 8.0.28:
+
+| Case | Dynamic string | Generated literal | Compiled expression |
+| ---- | --------------: | ----------------: | ------------------: |
+| Exact | 1,075.65 ns / 536 B | 104.24 ns / 0 B | 89.80 ns / 0 B |
+| Recursive | 425.58 ns / 344 B | 90.86 ns / 0 B | 134.75 ns / 0 B |
+| Simple wildcard | 125.57 ns / 216 B | 53.83 ns / 0 B | 58.36 ns / 0 B |
+| Complex wildcard | 109.47 ns / 160 B | 76.85 ns / 0 B | 68.82 ns / 0 B |
+| Tagged | 1,790.90 ns / 408 B | 229.94 ns / 0 B | 193.66 ns / 0 B |
+
+CI publishes the BenchmarkDotNet reports and an SVG comparison chart as build artifacts.
+
+---
+
 ## **Contributing**
 
 1. Fork the repository.

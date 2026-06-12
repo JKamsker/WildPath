@@ -19,7 +19,9 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: |
+            8.0.x
+            9.0.x
 
       - name: Compute Version
         id: set-version
@@ -46,8 +48,43 @@ jobs:
           name: nuget-package
           path: out/
 
-  NugetUpload:
+  benchmarks:
     needs: build
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run benchmarks
+        run: dotnet run -c Release --project WildPath.Benchmarks -- --filter '*'
+
+      - name: Generate benchmark comparison graph
+        shell: pwsh
+        run: |
+          ./scripts/Generate-BenchmarkComparison.ps1 `
+            -CsvPath "BenchmarkDotNet.Artifacts/results/WildPath.Benchmarks.PathResolutionBenchmarks-report.csv" `
+            -OutputPath "BenchmarkDotNet.Artifacts/results/benchmark-comparison.svg"
+
+      - name: Upload benchmark artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: BenchmarkDotNet.Artifacts/results/
+
+  NugetUpload:
+    needs: [build, benchmarks]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
